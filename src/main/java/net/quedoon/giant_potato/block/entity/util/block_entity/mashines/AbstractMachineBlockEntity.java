@@ -61,19 +61,23 @@ public abstract class AbstractMachineBlockEntity<T extends Recipe<?>> extends Bl
 
     @Override
     protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
+        String name = getName();
         super.writeNbt(nbt, registryLookup);
         Inventories.writeNbt(nbt, inventory, registryLookup);
-        nbt.putInt("giant_potato.crusher.progress", progress);
-        nbt.putInt("giant_potato.crusher.max_progress", maxProgress);
-        nbt.putBoolean("giant_potato.crusher.active", active);
+        nbt.putInt("giant_potato." + name + ".progress", progress);
+        nbt.putInt("giant_potato." + name + ".max_progress", maxProgress);
+        nbt.putBoolean("giant_potato." + name + ".active", active);
     }
+
+    public abstract String getName();
 
     @Override
     protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
+        String name = getName();
         Inventories.readNbt(nbt, inventory, registryLookup);
-        progress = nbt.getInt("giant_potato.crusher.progress");
-        maxProgress = nbt.getInt("giant_potato.crusher.max_progress");
-        active = nbt.getBoolean("giant_potato.crusher.active");
+        progress = nbt.getInt("giant_potato." + name + ".progress");
+        maxProgress = nbt.getInt("giant_potato." + name + ".max_progress");
+        active = nbt.getBoolean("giant_potato." + name + ".active");
         super.readNbt(nbt, registryLookup);
     }
 

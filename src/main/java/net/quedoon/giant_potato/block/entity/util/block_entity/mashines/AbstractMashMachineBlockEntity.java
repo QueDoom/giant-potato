@@ -11,12 +11,12 @@ import net.minecraft.recipe.Recipe;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.util.math.BlockPos;
+import net.quedoon.giant_potato.block.entity.util.ImplementedMashTank;
 import net.quedoon.giant_potato.fluid.ModFluids;
 
-public abstract class AbstractMashMachineBlockEntity<T extends Recipe<?>> extends AbstractMachineBlockEntity<T> {
+public abstract class AbstractMashMachineBlockEntity<T extends Recipe<?>> extends AbstractMachineBlockEntity<T> implements ImplementedMashTank {
 
-    private int mash = 0;
-    private final int MAX_MASH;
+    private int MAX_MASH;
 
     protected final PropertyDelegate propertyDelegate;
 
@@ -53,49 +53,13 @@ public abstract class AbstractMashMachineBlockEntity<T extends Recipe<?>> extend
         };
     }
 
-    public final SingleVariantStorage<FluidVariant> fluidStorage = new SingleVariantStorage<FluidVariant>() {
-        @Override
-        protected FluidVariant getBlankVariant() {
-            return FluidVariant.blank();
-        }
-
-        @Override
-        protected long getCapacity(FluidVariant variant) {
-            return (FluidConstants.BUCKET / 81) * MAX_MASH; // 1 Bucket = 81000 Droplets = 1000mB || * 64 ==> 64,000mB = 64 Buckets
-        }
-
-        @Override
-        protected void onFinalCommit() {
-            markDirty();
-            getWorld().updateListeners(pos, getCachedState(), getCachedState(), 3);
-        }
-
-        @Override
-        protected boolean canInsert(FluidVariant variant) {
-            return variant.isOf(ModFluids.MASH) || variant.isOf(ModFluids.POISONOUS_MASH);
-        }
-    };
-    public final SingleVariantStorage<FluidVariant> fluidStorageHalf = new SingleVariantStorage<FluidVariant>() {
-        @Override
-        protected FluidVariant getBlankVariant() {
-            return FluidVariant.blank();
-        }
-
-        @Override
-        protected long getCapacity(FluidVariant variant) {
-            return (FluidConstants.BUCKET / 81) * MAX_MASH; // 1 Bucket = 81000 Droplets = 1000mB || * 64 ==> 64,000mB = 64 Buckets
-        }
-
-        @Override
-        protected void onFinalCommit() {
-            markDirty();
-            getWorld().updateListeners(pos, getCachedState(), getCachedState(), 3);
-        }
-    };
-
-    public FluidVariant getFluid() {
-        return fluidStorage.variant;
+    @Override
+    public SingleVariantStorage<FluidVariant> getMashStorage() {
+        return fluidStorage;
     }
+
+    public final SingleVariantStorage<FluidVariant> fluidStorage = ImplementedMashTank.of(MAX_MASH, this);
+    public final SingleVariantStorage<FluidVariant> fluidStorageHalf = ImplementedMashTank.of(MAX_MASH, this);
 
     @Override
     public NbtCompound toInitialChunkDataNbt(RegistryWrapper.WrapperLookup registryLookup) {
@@ -104,21 +68,23 @@ public abstract class AbstractMashMachineBlockEntity<T extends Recipe<?>> extend
 
     @Override
     protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
+        String name = getName();
         super.writeNbt(nbt, registryLookup);
         Inventories.writeNbt(nbt, inventory, registryLookup);
-        nbt.putInt("giant_potato.crusher.progress", progress);
-        nbt.putInt("giant_potato.crusher.max_progress", maxProgress);
-        nbt.putBoolean("giant_potato.crusher.active", active);
+        nbt.putInt("giant_potato." + name + ".progress", progress);
+        nbt.putInt("giant_potato." + name + ".max_progress", maxProgress);
+        nbt.putBoolean("giant_potato." + name + ".active", active);
         SingleVariantStorage.writeNbt(this.fluidStorage, FluidVariant.CODEC, nbt, registryLookup);
     }
 
     @Override
     protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
+        String name = getName();
         super.readNbt(nbt, registryLookup);
         Inventories.readNbt(nbt, inventory, registryLookup);
-        progress = nbt.getInt("giant_potato.crusher.progress");
-        maxProgress = nbt.getInt("giant_potato.crusher.max_progress");
-        active = nbt.getBoolean("giant_potato.crusher.active");
+        progress = nbt.getInt("giant_potato." + name + ".progress");
+        maxProgress = nbt.getInt("giant_potato." + name + ".max_progress");
+        active = nbt.getBoolean("giant_potato." + name + ".active");
         SingleVariantStorage.readNbt(fluidStorage, FluidVariant.CODEC, FluidVariant::blank, nbt, registryLookup);
     }
 }

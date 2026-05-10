@@ -47,6 +47,11 @@ public class CrusherBlockEntity extends AbstractMashMachineBlockEntity<CrusherRe
         return 72;
     }
 
+    @Override
+    public String getName() {
+        return "crusher";
+    }
+
     public void tick(World world, BlockPos pos, BlockState state) {
         if (!(world.isClient())) return;
         GiantPotato.LOGGER.info("We are in the server!");

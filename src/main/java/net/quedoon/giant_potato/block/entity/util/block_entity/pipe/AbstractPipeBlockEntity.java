@@ -26,10 +26,7 @@ import net.quedoon.giant_potato.util.ModTags;
 import net.quedoon.giant_potato.util.ShapeUtil;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public abstract class AbstractPipeBlockEntity extends BlockEntity {
     private int NORTH = 0;
@@ -197,34 +194,34 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
 
     public ArrayList<Direction> getConnectedDirections(AbstractPipeBlockEntity blockEntity) {
         ArrayList<Direction> output = new ArrayList<>();
-        if (isConnected(NORTH)) output.add(Direction.NORTH);
-        if (isConnected(SOUTH)) output.add(Direction.SOUTH);
-        if (isConnected(EAST)) output.add(Direction.EAST);
-        if (isConnected(WEST)) output.add(Direction.WEST);
-        if (isConnected(UP)) output.add(Direction.UP);
-        if (isConnected(DOWN)) output.add(Direction.DOWN);
+        if (isConnected(blockEntity.NORTH)) output.add(Direction.NORTH);
+        if (isConnected(blockEntity.SOUTH)) output.add(Direction.SOUTH);
+        if (isConnected(blockEntity.EAST)) output.add(Direction.EAST);
+        if (isConnected(blockEntity.WEST)) output.add(Direction.WEST);
+        if (isConnected(blockEntity.UP)) output.add(Direction.UP);
+        if (isConnected(blockEntity.DOWN)) output.add(Direction.DOWN);
         return output;
     }
 
-    public ArrayList<Direction> getOutputDirections(AbstractPipeBlockEntity blockEntity) {
-        ArrayList<Direction> output = new ArrayList<>();
-        if (isOutput(NORTH)) output.add(Direction.NORTH);
-        if (isOutput(SOUTH)) output.add(Direction.SOUTH);
-        if (isOutput(EAST)) output.add(Direction.EAST);
-        if (isOutput(WEST)) output.add(Direction.WEST);
-        if (isOutput(UP)) output.add(Direction.UP);
-        if (isOutput(DOWN)) output.add(Direction.DOWN);
+    public List<Direction> getOutputDirections(AbstractPipeBlockEntity blockEntity) {
+        List<Direction> output = new ArrayList<>();
+        if (isOutput(blockEntity.NORTH)) output.add(Direction.NORTH);
+        if (isOutput(blockEntity.SOUTH)) output.add(Direction.SOUTH);
+        if (isOutput(blockEntity.EAST)) output.add(Direction.EAST);
+        if (isOutput(blockEntity.WEST)) output.add(Direction.WEST);
+        if (isOutput(blockEntity.UP)) output.add(Direction.UP);
+        if (isOutput(blockEntity.DOWN)) output.add(Direction.DOWN);
         return output;
     }
 
     public ArrayList<Direction> getNonOutputConnectedDirections(AbstractPipeBlockEntity blockEntity) {
         ArrayList<Direction> output = new ArrayList<>();
-        if (!isOutput(NORTH) && isConnected(NORTH)) output.add(Direction.NORTH);
-        if (!isOutput(SOUTH) && isConnected(SOUTH)) output.add(Direction.SOUTH);
-        if (!isOutput(EAST) && isConnected(EAST)) output.add(Direction.EAST);
-        if (!isOutput(WEST) && isConnected(WEST)) output.add(Direction.WEST);
-        if (!isOutput(UP) && isConnected(UP)) output.add(Direction.UP);
-        if (!isOutput(DOWN) && isConnected(DOWN)) output.add(Direction.DOWN);
+        if (!isOutput(blockEntity.NORTH) && isConnected(blockEntity.NORTH)) output.add(Direction.NORTH);
+        if (!isOutput(blockEntity.SOUTH) && isConnected(blockEntity.SOUTH)) output.add(Direction.SOUTH);
+        if (!isOutput(blockEntity.EAST) && isConnected(blockEntity.EAST)) output.add(Direction.EAST);
+        if (!isOutput(blockEntity.WEST) && isConnected(blockEntity.WEST)) output.add(Direction.WEST);
+        if (!isOutput(blockEntity.UP) && isConnected(blockEntity.UP)) output.add(Direction.UP);
+        if (!isOutput(blockEntity.DOWN) && isConnected(blockEntity.DOWN)) output.add(Direction.DOWN);
         return output;
     }
 

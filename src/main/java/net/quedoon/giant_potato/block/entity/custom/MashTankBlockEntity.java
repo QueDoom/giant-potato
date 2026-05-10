@@ -28,13 +28,14 @@ import net.minecraft.world.World;
 import net.quedoon.giant_potato.block.entity.util.ImplementedInventory;
 import net.quedoon.giant_potato.block.entity.ModBlockEntities;
 import net.quedoon.giant_potato.block.entity.fluid.FluidUtils;
+import net.quedoon.giant_potato.block.entity.util.ImplementedMashTank;
 import net.quedoon.giant_potato.fluid.ModFluids;
 import net.quedoon.giant_potato.fluid.util.EmptyableItemContainer;
 import net.quedoon.giant_potato.screen.custom.MashTankScreenHandler;
 import net.quedoon.giant_potato.util.ModTags;
 import org.jetbrains.annotations.Nullable;
 
-public class MashTankBlockEntity extends BlockEntity implements ExtendedScreenHandlerFactory<BlockPos>, ImplementedInventory {
+public class MashTankBlockEntity extends BlockEntity implements ExtendedScreenHandlerFactory<BlockPos>, ImplementedInventory, ImplementedMashTank {
     private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(2, ItemStack.EMPTY);
 
     protected final PropertyDelegate propertyDelegate;
@@ -62,57 +63,14 @@ public class MashTankBlockEntity extends BlockEntity implements ExtendedScreenHa
         };
     }
 
-    public final SingleVariantStorage<FluidVariant> fluidStorage = new SingleVariantStorage<FluidVariant>() {
-        @Override
-        protected FluidVariant getBlankVariant() {
-            return FluidVariant.blank();
-        }
+    public final SingleVariantStorage<FluidVariant> fluidStorage = ImplementedMashTank.of(64, this);
+    public final SingleVariantStorage<FluidVariant> fluidStorageHalf = ImplementedMashTank.of(64, this);
+    public final SingleVariantStorage<FluidVariant> fluidStorageHalfMinus = ImplementedMashTank.of(64, this);
 
-        @Override
-        protected long getCapacity(FluidVariant variant) {
-            return (FluidConstants.BUCKET / 81) * 64; // 1 Bucket = 81000 Droplets = 1000mB || * 64 ==> 64,000mB = 64 Buckets
-        }
-
-        @Override
-        protected void onFinalCommit() {
-            markDirty();
-            getWorld().updateListeners(pos, getCachedState(), getCachedState(), 3);
-        }
-    };
-    public final SingleVariantStorage<FluidVariant> fluidStorageHalf = new SingleVariantStorage<FluidVariant>() {
-        @Override
-        protected FluidVariant getBlankVariant() {
-            return FluidVariant.blank();
-        }
-
-        @Override
-        protected long getCapacity(FluidVariant variant) {
-            return (FluidConstants.BUCKET / 81) * 64; // 1 Bucket = 81000 Droplets = 1000mB || * 64 ==> 64,000mB = 64 Buckets
-        }
-
-        @Override
-        protected void onFinalCommit() {
-            markDirty();
-            getWorld().updateListeners(pos, getCachedState(), getCachedState(), 3);
-        }
-    };
-    public final SingleVariantStorage<FluidVariant> fluidStorageHalfMinus = new SingleVariantStorage<FluidVariant>() {
-        @Override
-        protected FluidVariant getBlankVariant() {
-            return FluidVariant.blank();
-        }
-
-        @Override
-        protected long getCapacity(FluidVariant variant) {
-            return (FluidConstants.BUCKET / 81) * 64; // 1 Bucket = 81000 Droplets = 1000mB || * 64 ==> 64,000mB = 64 Buckets
-        }
-
-        @Override
-        protected void onFinalCommit() {
-            markDirty();
-            getWorld().updateListeners(pos, getCachedState(), getCachedState(), 3);
-        }
-    };
+    @Override
+    public SingleVariantStorage<FluidVariant> getMashStorage() {
+        return fluidStorage;
+    }
 
     @Override
     public BlockPos getScreenOpeningData(ServerPlayerEntity player) {

@@ -38,8 +38,8 @@ public class MashPipeOutputBlock extends AbstractPipeBlock {
         return ModBlocks.MASH_PIPE.asItem().getDefaultStack();
     }
 
-//    @Override
-//    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-//        return validateTicker(type, ModBlockEntities.MASH_PIPE_OUTPUT_BE, ((world1, pos, state1, blockEntity) -> blockEntity.tick(world1, pos, state1)));
-//    }
+    @Override
+    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
+        return validateTicker(type, ModBlockEntities.MASH_PIPE_OUTPUT_BE, ((world1, pos, state1, blockEntity) -> blockEntity.tick(world1, pos, state1)));
+    }
 }

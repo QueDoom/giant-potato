@@ -1,13 +1,13 @@
-// 1.21.1	2026-04-29T12:21:27.827373608	Giant Potato/Model Definitions
+// 1.21.1	2026-05-10T14:24:11.821604898	Giant Potato/Model Definitions
+f9152b11efb1755253065284e883208f10859697 assets/giant_potato/models/item/mash_bucket.json
+20e493bdca00314f82528f477618d5b868670833 assets/giant_potato/models/item/tiller.json
+d4fbc6141e6c2b788006e54f937750665ce18eed assets/giant_potato/models/item/smooth_potatoes.json
+bee24fdd09d30b5531a5ae62ccf03a7213337d15 assets/giant_potato/models/item/charred_potato.json
+005667e8060384052ac29d47f87ef011035af235 assets/giant_potato/models/item/poisonous_potato_alloy.json
 9bab93279b00136a004ce18867fc8bbf8bb6b079 assets/giant_potato/blockstates/smooth_potatoes.json
+83fca244097b3185c2965649f02104dc46cef864 assets/giant_potato/models/item/wrench.json
+b07cf55b7038ceeaa2ed90edb51f24cfe2c86525 assets/giant_potato/models/item/crusher_wheel.json
+6e13cc7a4659368652eb0bcdcc72a10cd9bcf866 assets/giant_potato/models/item/poisonous_mash_bucket.json
+da0bf2a26738825e50461db2208415a9406b3570 assets/giant_potato/models/item/potato_alloy.json
 ce3295efc3c3e239ae76beb41f9e28c3919e85b6 assets/giant_potato/models/item/biosteel_alloy.json
 5151472f4546e69fef10836ecd9038772e77f68a assets/giant_potato/models/block/smooth_potatoes.json
-83fca244097b3185c2965649f02104dc46cef864 assets/giant_potato/models/item/wrench.json
-6e13cc7a4659368652eb0bcdcc72a10cd9bcf866 assets/giant_potato/models/item/poisonous_mash_bucket.json
-b07cf55b7038ceeaa2ed90edb51f24cfe2c86525 assets/giant_potato/models/item/crusher_wheel.json
-da0bf2a26738825e50461db2208415a9406b3570 assets/giant_potato/models/item/potato_alloy.json
-f9152b11efb1755253065284e883208f10859697 assets/giant_potato/models/item/mash_bucket.json
-005667e8060384052ac29d47f87ef011035af235 assets/giant_potato/models/item/poisonous_potato_alloy.json
-20e493bdca00314f82528f477618d5b868670833 assets/giant_potato/models/item/tiller.json
-bee24fdd09d30b5531a5ae62ccf03a7213337d15 assets/giant_potato/models/item/charred_potato.json
-d4fbc6141e6c2b788006e54f937750665ce18eed assets/giant_potato/models/item/smooth_potatoes.json

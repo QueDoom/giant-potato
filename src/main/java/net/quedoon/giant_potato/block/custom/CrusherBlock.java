@@ -22,24 +22,23 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.quedoon.giant_potato.block.entity.ModBlockEntities;
 import net.quedoon.giant_potato.block.entity.custom.CrusherBlockEntity;
+import net.quedoon.giant_potato.block.entity.util.block.machine.AbstractMashMachineBlock;
 import net.quedoon.giant_potato.block.util.ModBlockHitboxes;
 import org.jetbrains.annotations.Nullable;
 
-public class CrusherBlock extends BlockWithEntity implements BlockEntityProvider {
-    VoxelShape SHAPE = ModBlockHitboxes.getCrusherHitbox();
-
+public class CrusherBlock extends AbstractMashMachineBlock {
     public static final MapCodec<CrusherBlock> CODEC = createCodec(CrusherBlock::new);
-    public static final DirectionProperty FACING = HorizontalFacingBlock.FACING;
+
+    @Override
+    protected VoxelShape getShape() {
+        return ModBlockHitboxes.getCrusherHitbox();
+    }
 
     public CrusherBlock(Settings settings) {
         super(settings);
         this.setDefaultState(this.getStateManager().getDefaultState().with(FACING, Direction.NORTH));
     }
 
-    @Override
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(FACING);
-    }
 
     @Override
     protected MapCodec<? extends BlockWithEntity> getCodec() {
@@ -49,16 +48,6 @@ public class CrusherBlock extends BlockWithEntity implements BlockEntityProvider
     @Override
     public @Nullable BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
         return new CrusherBlockEntity(pos, state);
-    }
-
-    @Override
-    public @Nullable BlockState getPlacementState(ItemPlacementContext ctx) {
-        return this.getDefaultState().with(FACING, ctx.getHorizontalPlayerFacing().getOpposite());
-    }
-
-    @Override
-    protected BlockRenderType getRenderType(BlockState state) {
-        return BlockRenderType.MODEL;
     }
 
     @Override
@@ -75,30 +64,20 @@ public class CrusherBlock extends BlockWithEntity implements BlockEntityProvider
     }
 
 
-    @Override
-    protected ItemActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-        if (!world.isClient()) {
-            NamedScreenHandlerFactory screenHandlerFactory = ((CrusherBlockEntity) world.getBlockEntity(pos));
-            if (screenHandlerFactory != null) {
-                player.openHandledScreen(screenHandlerFactory);
-                return ItemActionResult.SUCCESS;
-            }
-        }
-        return ItemActionResult.FAIL;
-    }
+//    @Override
+//    protected ItemActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+//        if (!world.isClient()) {
+//            NamedScreenHandlerFactory screenHandlerFactory = ((CrusherBlockEntity) world.getBlockEntity(pos));
+//            if (screenHandlerFactory != null) {
+//                player.openHandledScreen(screenHandlerFactory);
+//                return ItemActionResult.SUCCESS;
+//            }
+//        }
+//        return ItemActionResult.FAIL;
+//    }
 
     @Override
     public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
         return validateTicker(type, ModBlockEntities.CRUSHER_BE, (world1, pos, state1, blockEntity) -> blockEntity.tick(world1, pos, state1));
-    }
-
-    @Override
-    protected VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        return SHAPE;
-    }
-
-    @Override
-    protected VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        return SHAPE;
     }
 }
