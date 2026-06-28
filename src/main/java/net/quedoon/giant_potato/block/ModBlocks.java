@@ -33,6 +33,14 @@ public class ModBlocks {
             new SlabBlock(AbstractBlock.Settings.create().sounds(BlockSoundGroup.STONE)
                     .strength(3.0F).resistance(3.0F).requiresTool()));
 
+    // Sewer
+    public static final Block SEWER_DRAIN = registerBlock("sewer_drain",
+            new SewerDrainBlock(AbstractBlock.Settings.create().sounds(BlockSoundGroup.METAL)
+                    .strength(4.0F).resistance(3.0F).requiresTool().nonOpaque()));
+    public static final Block SEWER = registerBlock("sewer",
+            new SewerBlock(AbstractBlock.Settings.create().sounds(BlockSoundGroup.METAL)
+                    .strength(4.0F).resistance(3.0F).requiresTool()));
+
     // Machines
     public static final Block FOUNDRY = registerBlockWithoutItem("foundry",
             new FoundryBlock(AbstractBlock.Settings.create().sounds(BlockSoundGroup.STONE)

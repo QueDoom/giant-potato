@@ -1,0 +1,139 @@
+{
+  "variants": {
+    "sewer_states=left,facing=north": {
+      "model": "giant_potato:block/sewer_left"
+    },
+    "sewer_states=left,facing=east": {
+      "model": "giant_potato:block/sewer_left",
+      "y": 90
+    },
+    "sewer_states=left,facing=south": {
+      "model": "giant_potato:block/sewer_left",
+      "y": 180
+    },
+    "sewer_states=left,facing=west": {
+      "model": "giant_potato:block/sewer_left",
+      "y": 270
+    },
+    "sewer_states=left_only,facing=north": {
+      "model": "giant_potato:block/sewer_left_only"
+    },
+    "sewer_states=left_only,facing=east": {
+      "model": "giant_potato:block/sewer_left_only",
+      "y": 90
+    },
+    "sewer_states=left_only,facing=south": {
+      "model": "giant_potato:block/sewer_left_only",
+      "y": 180
+    },
+    "sewer_states=left_only,facing=west": {
+      "model": "giant_potato:block/sewer_left_only",
+      "y": 270
+    },
+    "sewer_states=forward,facing=north": {
+      "model": "giant_potato:block/sewer_forward"
+    },
+    "sewer_states=forward,facing=east": {
+      "model": "giant_potato:block/sewer_forward",
+      "y": 90
+    },
+    "sewer_states=forward,facing=south": {
+      "model": "giant_potato:block/sewer_forward",
+      "y": 180
+    },
+    "sewer_states=forward,facing=west": {
+      "model": "giant_potato:block/sewer_forward",
+      "y": 270
+    },
+    "sewer_states=forward_only,facing=north": {
+      "model": "giant_potato:block/sewer_forward_only"
+    },
+    "sewer_states=forward_only,facing=east": {
+      "model": "giant_potato:block/sewer_forward_only",
+      "y": 90
+    },
+    "sewer_states=forward_only,facing=south": {
+      "model": "giant_potato:block/sewer_forward_only",
+      "y": 180
+    },
+    "sewer_states=forward_only,facing=west": {
+      "model": "giant_potato:block/sewer_forward_only",
+      "y": 270
+    },
+    "sewer_states=right,facing=north": {
+      "model": "giant_potato:block/sewer_right"
+    },
+    "sewer_states=right,facing=east": {
+      "model": "giant_potato:block/sewer_right",
+      "y": 90
+    },
+    "sewer_states=right,facing=south": {
+      "model": "giant_potato:block/sewer_right",
+      "y": 180
+    },
+    "sewer_states=right,facing=west": {
+      "model": "giant_potato:block/sewer_right",
+      "y": 270
+    },
+    "sewer_states=right_only,facing=north": {
+      "model": "giant_potato:block/sewer_right_only"
+    },
+    "sewer_states=right_only,facing=east": {
+      "model": "giant_potato:block/sewer_right_only",
+      "y": 90
+    },
+    "sewer_states=right_only,facing=south": {
+      "model": "giant_potato:block/sewer_right_only",
+      "y": 180
+    },
+    "sewer_states=right_only,facing=west": {
+      "model": "giant_potato:block/sewer_right_only",
+      "y": 270
+    },
+    "sewer_states=back,facing=north": {
+      "model": "giant_potato:block/sewer_back"
+    },
+    "sewer_states=back,facing=east": {
+      "model": "giant_potato:block/sewer_back",
+      "y": 90
+    },
+    "sewer_states=back,facing=south": {
+      "model": "giant_potato:block/sewer_back",
+      "y": 180
+    },
+    "sewer_states=back,facing=west": {
+      "model": "giant_potato:block/sewer_back",
+      "y": 270
+    },
+    "sewer_states=none,facing=north": {
+      "model": "giant_potato:block/sewer_none"
+    },
+    "sewer_states=none,facing=east": {
+      "model": "giant_potato:block/sewer_none",
+      "y": 90
+    },
+    "sewer_states=none,facing=south": {
+      "model": "giant_potato:block/sewer_none",
+      "y": 180
+    },
+    "sewer_states=none,facing=west": {
+      "model": "giant_potato:block/sewer_none",
+      "y": 270
+    },
+    "sewer_states=shape,facing=north": {
+      "model": "giant_potato:block/sewer_shape"
+    },
+    "sewer_states=shape,facing=east": {
+      "model": "giant_potato:block/sewer_shape",
+      "y": 90
+    },
+    "sewer_states=shape,facing=south": {
+      "model": "giant_potato:block/sewer_shape",
+      "y": 180
+    },
+    "sewer_states=shape,facing=west": {
+      "model": "giant_potato:block/sewer_shape",
+      "y": 270
+    }
+  }
+}

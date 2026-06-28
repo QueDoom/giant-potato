@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "drain_shape=drain_only": {
+      "model": "giant_potato:block/sewage_drain"
+    },
+    "drain_shape=drain_fall": {
+      "model": "giant_potato:block/sewage_drain_lower"
+    },
+    "drain_shape=drain_tunnel": {
+      "model": "giant_potato:block/sewage_drain_tunnel_with"
+    },
+    "drain_shape=tunnel": {
+      "model": "giant_potato:block/sewage_drain_tunnel"
+    }
+  }
+}

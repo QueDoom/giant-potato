@@ -29,7 +29,7 @@ public class ModLootTableGenerator extends FabricBlockLootTableProvider {
     @Override
     public void generate() {
         addDrop(ModBlocks.MASH_BOWL);
-
+        addDrop(ModBlocks.SEWER_DRAIN);
 
     }
 

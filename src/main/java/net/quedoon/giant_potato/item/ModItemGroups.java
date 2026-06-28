@@ -38,6 +38,8 @@ public class ModItemGroups {
                         entries.add(ModBlocks.CRUSHER);
                         entries.add(ModItems.CRUSHER_WHEEL);
 
+                        entries.add(ModBlocks.SEWER_DRAIN);
+
 
 
                     }).build());

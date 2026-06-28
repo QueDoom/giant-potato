@@ -26,6 +26,11 @@ repositories {
 		name = "Modrinth"
 		url = "https://api.modrinth.com/maven" }
 	maven { url 'https://jitpack.io/' }
+	// Flywheel
+	maven {
+		name "createmod maven"
+		url "https://maven.createmod.net/"
+	}
 	mavenCentral()
 }
 
@@ -48,13 +53,22 @@ dependencies {
 	modImplementation "software.bernie.geckolib:geckolib-fabric-${minecraft_version}:${geckolib_version}"
 	modImplementation("com.infinitychances:fluidlib:${fluidlib_version}+${project.minecraft_version}")
 
-	//EMI
+	// EMI
 	modCompileOnly "dev.emi:emi-fabric:${emi_version}:api"
 	modLocalRuntime "dev.emi:emi-fabric:${emi_version}"
 
 	// Jade
 	modImplementation "maven.modrinth:jade:${project.jade_version}"
+
+	// Flywheel
+//	modApi "dev.engine-room.flywheel:flywheel-fabric-api-${minecraft_version}:${flywheel_version}"
+//	modImplementation "dev.engine-room.flywheel:flywheel-fabric-${minecraft_version}:${flywheel_version}"
+
 }
+
+// Flywheel
+// property 'mixin.env.remapRefMap', 'true'
+// property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
 
 processResources {
 	inputs.property "version", project.version

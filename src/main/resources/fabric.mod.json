@@ -3,12 +3,12 @@
 	"id": "giant_potato",
 	"version": "${version}",
 	"name": "Giant Potato",
-	"description": "A techy space-mod based on potatoes and agriculture",
+	"description": "A tech mod based on potatoes and sewer systems",
 	"authors": [
 		"QueDoom"
 	],
 	"contact": {
-		"homepage": "https://munhco.online/",
+		"homepage": "https://quedoom.com/",
 		"sources": "https://github.com/QueDoom/gaint-potato"
 	},
 	"license": "MIT",

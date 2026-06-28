@@ -1,20 +1,5 @@
 {
   "variants": {
-    "level=0": { "model": "giant_potato:block/mash" },
-    "level=1": { "model": "giant_potato:block/mash" },
-    "level=2": { "model": "giant_potato:block/mash" },
-    "level=3": { "model": "giant_potato:block/mash" },
-    "level=4": { "model": "giant_potato:block/mash" },
-    "level=5": { "model": "giant_potato:block/mash" },
-    "level=6": { "model": "giant_potato:block/mash" },
-    "level=7": { "model": "giant_potato:block/mash" },
-    "level=8": { "model": "giant_potato:block/mash" },
-    "level=9": { "model": "giant_potato:block/mash" },
-    "level=10": { "model": "giant_potato:block/mash" },
-    "level=11": { "model": "giant_potato:block/mash" },
-    "level=12": { "model": "giant_potato:block/mash" },
-    "level=13": { "model": "giant_potato:block/mash" },
-    "level=14": { "model": "giant_potato:block/mash" },
-    "level=15": { "model": "giant_potato:block/mash" }
+    "": { "model": "giant_potato:block/mash" }
   }
 }

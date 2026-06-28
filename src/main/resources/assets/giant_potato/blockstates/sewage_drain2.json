@@ -1,0 +1,40 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "giant_potato:block/sewage_drain",
+        "uvlock": true
+      },
+      "when": {
+        "drain_shape": "drain_only"
+      }
+    },
+    {
+      "apply": {
+        "model": "giant_potato:block/sewage_drain_lower",
+        "uvlock": true
+      },
+      "when": {
+        "drain_shape": "drain_lower"
+      }
+    },
+    {
+      "apply": {
+        "model": "giant_potato:block/sewage_drain_tunnel_with",
+        "uvlock": true
+      },
+      "when": {
+        "drain_shape": "drain_tunnel"
+      }
+    },
+    {
+      "apply": {
+        "model": "giant_potato:block/sewage_drain_tunnel",
+        "uvlock": true
+      },
+      "when": {
+        "drain_shape": "tunnel"
+      }
+    }
+  ]
+}

@@ -27,6 +27,7 @@ public class ModLangGenerator extends FabricLanguageProvider {
         translationBuilder.add(ModBlocks.CRUSHER, "Crusher");
         translationBuilder.add(ModFluids.MASH_BUCKET, "Mash Bucket");
         translationBuilder.add(ModFluids.POISONOUS_MASH_BUCKET, "Poisonous Mash Bucket");
+        translationBuilder.add(ModBlocks.SEWER_DRAIN, "Sewer Drain");
 
         // Items
         translationBuilder.add(ModItems.TILLER, "Tiller");

@@ -48,6 +48,6 @@ public class ModBlockTagProvider extends FabricTagProvider.BlockTagProvider {
         ;
 
         getOrCreateTagBuilder(BlockTags.PICKAXE_MINEABLE).add(ModBlocks.SMOOTH_POTATOES);
-        getOrCreateTagBuilder(BlockTags.PICKAXE_MINEABLE).add(ModBlocks.FOUNDRY);
+        getOrCreateTagBuilder(BlockTags.PICKAXE_MINEABLE).add(ModBlocks.FOUNDRY).add(ModBlocks.SEWER_DRAIN).add(ModBlocks.SEWER);
     }
 }
