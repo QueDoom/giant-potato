@@ -16,19 +16,19 @@
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"net.quedoon.giant_potato.GiantPotato"
+			"net.quedoom.giant_potato.GiantPotato"
 		],
 		"fabric-datagen": [
-			"net.quedoon.giant_potato.GiantPotatoDataGenerator"
+			"net.quedoom.giant_potato.GiantPotatoDataGenerator"
 		],
 		"client": [
-			"net.quedoon.giant_potato.GiantPotatoClient"
+			"net.quedoom.giant_potato.GiantPotatoClient"
 		],
 		"emi": [
-			"net.quedoon.giant_potato.zapi.emi.GiantPotatoEmiPlugin"
+			"net.quedoom.giant_potato.zapi.emi.GiantPotatoEmiPlugin"
 		],
 		"jade": [
-			"net.quedoon.giant_potato.zapi.jade.GiantPotatoJadePlugin"
+			"net.quedoom.giant_potato.zapi.jade.GiantPotatoJadePlugin"
 		]
 	},
 	"mixins": [
