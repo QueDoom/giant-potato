@@ -10,7 +10,7 @@ import net.minecraft.world.level.material.FluidState;
 import net.quedoon.giant_potato.GiantPotato;
 import org.jetbrains.annotations.Nullable;
 
-public class PoisonousMashFluidRenderHandler implements FluidRenderHandler {
+public class SewerWaterFluidRenderHandler implements FluidRenderHandler {
     private TextureAtlasSprite[] sprites = new TextureAtlasSprite[2];
 
     @Override
@@ -24,7 +24,7 @@ public class PoisonousMashFluidRenderHandler implements FluidRenderHandler {
 
     @Override
     public void reloadTextures(TextureAtlas textureAtlas) {
-        sprites[0] = textureAtlas.getSprite(ResourceLocation.fromNamespaceAndPath(GiantPotato.MOD_ID, "block/poisonous_mash_liquid"));
-        sprites[1] = textureAtlas.getSprite(ResourceLocation.fromNamespaceAndPath(GiantPotato.MOD_ID, "block/poisonous_mash_liquid_falling"));
+        sprites[0] = textureAtlas.getSprite(ResourceLocation.fromNamespaceAndPath(GiantPotato.MOD_ID, "block/sewer_water"));
+        sprites[1] = textureAtlas.getSprite(ResourceLocation.fromNamespaceAndPath(GiantPotato.MOD_ID, "block/flowing_sewer_water"));
     }
 }

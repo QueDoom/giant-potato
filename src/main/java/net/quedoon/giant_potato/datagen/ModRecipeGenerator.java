@@ -2,18 +2,15 @@ package net.quedoon.giant_potato.datagen;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
-import net.minecraft.block.Blocks;
-import net.minecraft.data.server.recipe.RecipeExporter;
-import net.minecraft.data.server.recipe.RecipeProvider;
-import net.minecraft.data.server.recipe.ShapedRecipeJsonBuilder;
-import net.minecraft.data.server.recipe.ShapelessRecipeJsonBuilder;
-import net.minecraft.item.ItemConvertible;
-import net.minecraft.item.Items;
-import net.minecraft.recipe.BlastingRecipe;
-import net.minecraft.recipe.book.RecipeCategory;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.registry.tag.BlockTags;
-import net.minecraft.registry.tag.ItemTags;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.data.recipes.RecipeOutput;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.data.recipes.ShapelessRecipeBuilder;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.Blocks;
 import net.quedoon.giant_potato.block.ModBlocks;
 import net.quedoon.giant_potato.item.ModItems;
 import net.quedoon.giant_potato.util.ModTags;
@@ -22,68 +19,68 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class ModRecipeGenerator extends FabricRecipeProvider {
-    public ModRecipeGenerator(FabricDataOutput output, CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture) {
+    public ModRecipeGenerator(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
         super(output, registriesFuture);
     }
 
     @Override
-    public void generate(RecipeExporter recipeExporter) {
-        ShapelessRecipeJsonBuilder.create(RecipeCategory.TOOLS, ModItems.TILLER)
-                .input(Items.DIAMOND_HOE)
-                .input(Items.POISONOUS_POTATO)
-                .criterion(hasItem(Items.POTATO), conditionsFromItem(Items.POTATO))
+    public void buildRecipes(RecipeOutput recipeExporter) {
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.TOOLS, ModItems.TILLER)
+                .requires(Items.DIAMOND_HOE)
+                .requires(Items.POISONOUS_POTATO)
+                .unlockedBy(getHasName(Items.POTATO), has(Items.POTATO))
                 .group("tiller")
-                .offerTo(recipeExporter);
+                .save(recipeExporter);
 
-        ShapedRecipeJsonBuilder.create(RecipeCategory.MISC, ModBlocks.MASH_BOWL)
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.MASH_BOWL)
                 .pattern("   ")
                 .pattern("S S")
                 .pattern("SSS")
-                .input('S', ItemTags.WOODEN_SLABS)
-                .criterion(hasItem(Items.OAK_SLAB), conditionsFromTag(ItemTags.WOODEN_SLABS))
+                .define('S', ItemTags.WOODEN_SLABS)
+                .unlockedBy(getHasName(Items.OAK_SLAB), has(ItemTags.WOODEN_SLABS))
                 .group("mash_bowl")
-                .offerTo(recipeExporter);
+                .save(recipeExporter);
 
-        ShapelessRecipeJsonBuilder.create(RecipeCategory.MISC, ModItems.FERTILIZER_DIRT)
-                .input(ModItems.TILLER)
-                .input(Items.DIRT)
-                .input(Items.POISONOUS_POTATO)
-                .criterion(hasItem(ModItems.TILLER), conditionsFromItem(ModItems.TILLER))
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.FERTILIZER_DIRT)
+                .requires(ModItems.TILLER)
+                .requires(Items.DIRT)
+                .requires(Items.POISONOUS_POTATO)
+                .unlockedBy(getHasName(ModItems.TILLER), has(ModItems.TILLER))
                 .group("fertilizer_dirt")
-                .offerTo(recipeExporter);
+                .save(recipeExporter);
 
-        ShapedRecipeJsonBuilder.create(RecipeCategory.BUILDING_BLOCKS, ModBlocks.SMOOTH_POTATOES, 8)
+        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ModBlocks.SMOOTH_POTATOES, 8)
                 .pattern("SSS")
                 .pattern("SFS")
                 .pattern("SSS")
-                .input('S', Blocks.SMOOTH_STONE)
-                .input('F', ModItems.FERTILIZER_DIRT)
-                .criterion(hasItem(Blocks.SMOOTH_STONE), conditionsFromItem(Blocks.SMOOTH_STONE))
+                .define('S', Blocks.SMOOTH_STONE)
+                .define('F', ModItems.FERTILIZER_DIRT)
+                .unlockedBy(getHasName(Blocks.SMOOTH_STONE), has(Blocks.SMOOTH_STONE))
                 .group("smooth_potatoes")
-                .offerTo(recipeExporter);
+                .save(recipeExporter);
 
-        ShapedRecipeJsonBuilder.create(RecipeCategory.BUILDING_BLOCKS, ModItems.FOUNDRY)
+        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ModItems.FOUNDRY)
                 .pattern("III")
                 .pattern("IFI")
                 .pattern("SSS")
-                .input('S', ModBlocks.SMOOTH_POTATOES)
-                .input('F', ModItems.FERTILIZER_DIRT)
-                .input('I', Items.IRON_INGOT)
-                .criterion(hasItem(ModItems.FERTILIZER_DIRT), conditionsFromItem(ModItems.FERTILIZER_DIRT))
+                .define('S', ModBlocks.SMOOTH_POTATOES)
+                .define('F', ModItems.FERTILIZER_DIRT)
+                .define('I', Items.IRON_INGOT)
+                .unlockedBy(getHasName(ModItems.FERTILIZER_DIRT), has(ModItems.FERTILIZER_DIRT))
                 .group("foundry")
-                .offerTo(recipeExporter);
+                .save(recipeExporter);
 
-        ShapedRecipeJsonBuilder.create(RecipeCategory.MISC, ModItems.MIDAS_HAND)
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.MIDAS_HAND)
                 .pattern(" GG")
                 .pattern(" GG")
                 .pattern("L  ")
-                .input('G', Blocks.GOLD_BLOCK)
-                .input('L', Items.LEATHER)
-                .criterion(hasItem(Blocks.GOLD_BLOCK), conditionsFromItem(Blocks.GOLD_BLOCK))
+                .define('G', Blocks.GOLD_BLOCK)
+                .define('L', Items.LEATHER)
+                .unlockedBy(getHasName(Blocks.GOLD_BLOCK), has(Blocks.GOLD_BLOCK))
                 .group("midas_hand")
-                .offerTo(recipeExporter);
+                .save(recipeExporter);
 
-        List<ItemConvertible> input_charred_potato = List.of(Items.POTATO);
-        offerBlasting(recipeExporter, input_charred_potato, RecipeCategory.MISC, ModItems.CHARRED_POTATO, 0.2f, 200, "charred_potato");
+        List<ItemLike> input_charred_potato = List.of(Items.POTATO);
+        oreBlasting(recipeExporter, input_charred_potato, RecipeCategory.MISC, ModItems.CHARRED_POTATO, 0.2f, 200, "charred_potato");
     }
 }

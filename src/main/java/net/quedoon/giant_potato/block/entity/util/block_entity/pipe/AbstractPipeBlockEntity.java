@@ -1,20 +1,20 @@
 package net.quedoon.giant_potato.block.entity.util.block_entity.pipe;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.Pair;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Tuple;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import net.quedoon.giant_potato.GiantPotato;
 import net.quedoon.giant_potato.block.entity.data.hitbox.AbstractPipeHitbox;
 import net.quedoon.giant_potato.block.entity.util.AbstractInteractionHitbox;
@@ -39,7 +39,7 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
     private final AbstractPipeBlock notOutput;
     private final AbstractPipeBlock output;
 
-    private final HashMap<Identifier, AbstractInteractionHitbox> hitBoxes = new HashMap<>();
+    private final HashMap<ResourceLocation, AbstractInteractionHitbox> hitBoxes = new HashMap<>();
 
     protected final Map<String, Integer> sidesIntLookup = Map.of(
             "none", 0,
@@ -74,50 +74,50 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
         }
     }
 
-    public ActionResult attemptInteraction(PlayerEntity player, Hand hand) {
-        BlockState state = this.getCachedState();
-        if (!state.isIn(ModTags.Blocks.PIPES)) return ActionResult.FAIL;
-        Pair<AbstractInteractionHitbox, Vec3d> targetedHitbox = getTargetedHitbox(player);
-        if (targetedHitbox == null) return ActionResult.PASS;
-        return targetedHitbox.getLeft().interact(this, targetedHitbox.getRight(), player, hand);
+    public InteractionResult attemptInteraction(Player player, InteractionHand hand) {
+        BlockState state = this.getBlockState();
+        if (!state.is(ModTags.Blocks.PIPES)) return InteractionResult.FAIL;
+        Tuple<AbstractInteractionHitbox, Vec3> targetedHitbox = getTargetedHitbox(player);
+        if (targetedHitbox == null) return InteractionResult.PASS;
+        return targetedHitbox.getA().interact(this, targetedHitbox.getB(), player, hand);
     }
 
     @Nullable
-    protected Pair<AbstractInteractionHitbox, Vec3d> getTargetedHitbox(PlayerEntity player) {
+    protected Tuple<AbstractInteractionHitbox, Vec3> getTargetedHitbox(Player player) {
         double distance = -1;
         AbstractInteractionHitbox closestInteraction = null;
-        Vec3d closestInteractionHitPos = null;
+        Vec3 closestInteractionHitPos = null;
 
         double reachDistance = player.isCreative() ? 5.0 : 4.5;
-        Vec3d eyePos = player.getEyePos();
-        Vec3d fullRangeReach = player.getRotationVector().multiply(reachDistance);
-        Vec3d endPos = eyePos.add(fullRangeReach);
+        Vec3 eyePos = player.getEyePosition();
+        Vec3 fullRangeReach = player.getLookAngle().scale(reachDistance);
+        Vec3 endPos = eyePos.add(fullRangeReach);
 
         for (var hitBox : this.getHitBoxes().values()) {
-            Optional<Vec3d> raycast = hitBox.getRotatedBox(Direction.NORTH).offset(this.pos).raycast(eyePos, endPos);
+            Optional<Vec3> raycast = hitBox.getRotatedBox(Direction.NORTH).move(this.worldPosition).clip(eyePos, endPos);
             if (raycast.isEmpty()) continue;
-            Vec3d successfulRaycast = raycast.get();
-            double currentDistance = eyePos.squaredDistanceTo(successfulRaycast);
+            Vec3 successfulRaycast = raycast.get();
+            double currentDistance = eyePos.distanceToSqr(successfulRaycast);
             if (closestInteraction == null || distance > currentDistance) {
                 closestInteraction = hitBox;
                 distance = currentDistance;
                 closestInteractionHitPos = successfulRaycast;
             }
         }
-        return closestInteraction == null ? null : new Pair<>(closestInteraction, closestInteractionHitPos);
+        return closestInteraction == null ? null : new Tuple<>(closestInteraction, closestInteractionHitPos);
     }
 
-    public void toggleSideFromHitbox(AbstractPipeBlockEntity blockEntity, Vec3d actualPos, PlayerEntity player, Hand hand, Direction side) {
-        BlockPos pos = blockEntity.getPos();
-        boolean isServer = player.getWorld() instanceof ServerWorld;
+    public void toggleSideFromHitbox(AbstractPipeBlockEntity blockEntity, Vec3 actualPos, Player player, InteractionHand hand, Direction side) {
+        BlockPos pos = blockEntity.getBlockPos();
+        boolean isServer = player.level() instanceof ServerLevel;
         if (isServer) {
             toggleOutput(blockEntity, side);
         }
     }
 
     protected void toggleOutput(AbstractPipeBlockEntity blockEntity, Direction direction) {
-        assert blockEntity.getWorld() != null;
-        BlockState state = blockEntity.getWorld().getBlockState(blockEntity.getPos());
+        assert blockEntity.getLevel() != null;
+        BlockState state = blockEntity.getLevel().getBlockState(blockEntity.getBlockPos());
         switch (direction) {
             case DOWN -> {
                 int intState = blockEntity.DOWN;
@@ -155,7 +155,7 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
         };
     }
 
-    public HashMap<Identifier, AbstractInteractionHitbox> getHitBoxes() {
+    public HashMap<ResourceLocation, AbstractInteractionHitbox> getHitBoxes() {
         return hitBoxes;
     }
 
@@ -169,24 +169,24 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
         DOWN = PipeShape.As.integer(d);
     }
 
-    public void setPipeStates(World world, BlockPos pos) {
+    public void setPipeStates(Level world, BlockPos pos) {
         if (isUnlocked(NORTH)) {
-            NORTH = world.getBlockState(pos.north()).isIn(ModTags.Blocks.MASH_PIPE_CONNECT_TO) ? 2 : 0;
+            NORTH = world.getBlockState(pos.north()).is(ModTags.Blocks.MASH_PIPE_CONNECT_TO) ? 2 : 0;
         }
         if (isUnlocked(SOUTH)) {
-            SOUTH = world.getBlockState(pos.south()).isIn(ModTags.Blocks.MASH_PIPE_CONNECT_TO) ? 2 : 0;
+            SOUTH = world.getBlockState(pos.south()).is(ModTags.Blocks.MASH_PIPE_CONNECT_TO) ? 2 : 0;
         }
         if (isUnlocked(EAST)) {
-            EAST = world.getBlockState(pos.east()).isIn(ModTags.Blocks.MASH_PIPE_CONNECT_TO) ? 2 : 0;
+            EAST = world.getBlockState(pos.east()).is(ModTags.Blocks.MASH_PIPE_CONNECT_TO) ? 2 : 0;
         }
         if (isUnlocked(WEST)) {
-            WEST = world.getBlockState(pos.west()).isIn(ModTags.Blocks.MASH_PIPE_CONNECT_TO) ? 2 : 0;
+            WEST = world.getBlockState(pos.west()).is(ModTags.Blocks.MASH_PIPE_CONNECT_TO) ? 2 : 0;
         }
         if (isUnlocked(UP)) {
-            UP = world.getBlockState(pos.up()).isIn(ModTags.Blocks.MASH_PIPE_CONNECT_TO) ? 2 : 0;
+            UP = world.getBlockState(pos.above()).is(ModTags.Blocks.MASH_PIPE_CONNECT_TO) ? 2 : 0;
         }
         if (isUnlocked(DOWN)) {
-            DOWN = world.getBlockState(pos.down()).isIn(ModTags.Blocks.MASH_PIPE_CONNECT_TO) ? 2 : 0;
+            DOWN = world.getBlockState(pos.below()).is(ModTags.Blocks.MASH_PIPE_CONNECT_TO) ? 2 : 0;
         }
         BlockState state = world.getBlockState(pos);
         updateSides(state, world, pos);
@@ -235,9 +235,9 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
     }
 
     public void setSide(BlockState state, Direction side, PipeShape.PipeShapes value) {
-        World world = getWorld();
+        Level world = getLevel();
         if(world == null) return;
-        BlockPos pos = getPos();
+        BlockPos pos = getBlockPos();
 
         int valueInt = PipeShape.As.integer(value);
         switch (side) {
@@ -248,14 +248,14 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
             case Direction.UP -> this.UP = valueInt;
             case Direction.DOWN -> this.DOWN = valueInt;
         }
-        markDirty();
+        setChanged();
         updateSides(state, world, pos);
     }
 
     public void setSide(BlockState state, Direction side, int valueInt) {
-        World world = getWorld();
+        Level world = getLevel();
         if(world == null) return;
-        BlockPos pos = getPos();
+        BlockPos pos = getBlockPos();
 
         switch (side) {
             case Direction.NORTH -> this.NORTH = valueInt;
@@ -265,7 +265,7 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
             case Direction.UP -> this.UP = valueInt;
             case Direction.DOWN -> this.DOWN = valueInt;
         }
-        markDirty();
+        setChanged();
         updateSides(state, world, pos);
     }
 
@@ -273,28 +273,28 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
         return valueInt == 4 || valueInt == 5;
     }
 
-    public void updateSides(BlockState state, World world, BlockPos pos) {
+    public void updateSides(BlockState state, Level world, BlockPos pos) {
         boolean isOutput = isOutput(NORTH) || isOutput(SOUTH) || isOutput(EAST) || isOutput(WEST) || isOutput(UP) || isOutput(DOWN);
-        world.setBlockState(pos, isOutput ? output.getDefaultState()
-                .with(ModProperties.NORTH_PIPE_SHAPE, PipeShape.As.pipeShapes(NORTH))
-                .with(ModProperties.SOUTH_PIPE_SHAPE, PipeShape.As.pipeShapes(SOUTH))
-                .with(ModProperties.EAST_PIPE_SHAPE, PipeShape.As.pipeShapes(EAST))
-                .with(ModProperties.WEST_PIPE_SHAPE, PipeShape.As.pipeShapes(WEST))
-                .with(ModProperties.UP_PIPE_SHAPE, PipeShape.As.pipeShapes(UP))
-                .with(ModProperties.DOWN_PIPE_SHAPE, PipeShape.As.pipeShapes(DOWN))
+        world.setBlockAndUpdate(pos, isOutput ? output.defaultBlockState()
+                .setValue(ModProperties.NORTH_PIPE_SHAPE, PipeShape.As.pipeShapes(NORTH))
+                .setValue(ModProperties.SOUTH_PIPE_SHAPE, PipeShape.As.pipeShapes(SOUTH))
+                .setValue(ModProperties.EAST_PIPE_SHAPE, PipeShape.As.pipeShapes(EAST))
+                .setValue(ModProperties.WEST_PIPE_SHAPE, PipeShape.As.pipeShapes(WEST))
+                .setValue(ModProperties.UP_PIPE_SHAPE, PipeShape.As.pipeShapes(UP))
+                .setValue(ModProperties.DOWN_PIPE_SHAPE, PipeShape.As.pipeShapes(DOWN))
                 :
-                notOutput.getDefaultState()
-                .with(ModProperties.NORTH_PIPE_SHAPE, PipeShape.As.pipeShapes(NORTH))
-                .with(ModProperties.SOUTH_PIPE_SHAPE, PipeShape.As.pipeShapes(SOUTH))
-                .with(ModProperties.EAST_PIPE_SHAPE, PipeShape.As.pipeShapes(EAST))
-                .with(ModProperties.WEST_PIPE_SHAPE, PipeShape.As.pipeShapes(WEST))
-                .with(ModProperties.UP_PIPE_SHAPE, PipeShape.As.pipeShapes(UP))
-                .with(ModProperties.DOWN_PIPE_SHAPE, PipeShape.As.pipeShapes(DOWN))
+                notOutput.defaultBlockState()
+                .setValue(ModProperties.NORTH_PIPE_SHAPE, PipeShape.As.pipeShapes(NORTH))
+                .setValue(ModProperties.SOUTH_PIPE_SHAPE, PipeShape.As.pipeShapes(SOUTH))
+                .setValue(ModProperties.EAST_PIPE_SHAPE, PipeShape.As.pipeShapes(EAST))
+                .setValue(ModProperties.WEST_PIPE_SHAPE, PipeShape.As.pipeShapes(WEST))
+                .setValue(ModProperties.UP_PIPE_SHAPE, PipeShape.As.pipeShapes(UP))
+                .setValue(ModProperties.DOWN_PIPE_SHAPE, PipeShape.As.pipeShapes(DOWN))
         );
     }
 
     @Override
-    protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
+    protected void loadAdditional(CompoundTag nbt, HolderLookup.Provider registryLookup) {
         this.NORTH = nbt.getInt("north");
         this.SOUTH = nbt.getInt("south");
         this.EAST = nbt.getInt("east");
@@ -304,7 +304,7 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
+    protected void saveAdditional(CompoundTag nbt, HolderLookup.Provider registryLookup) {
         nbt.putInt("north", this.NORTH);
         nbt.putInt("south", this.SOUTH);
         nbt.putInt("east", this.EAST);

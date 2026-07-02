@@ -36,12 +36,12 @@ import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleVariantStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.Registries;
-import net.minecraft.text.Text;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.material.Fluid;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -50,14 +50,14 @@ import java.util.stream.Collectors;
 
 public class FluidUtils {
     public static List<Fluid> getAllFluids() {
-        return Registries.FLUID.stream().collect(Collectors.toList());
+        return BuiltInRegistries.FLUID.stream().collect(Collectors.toList());
     }
 
-    public static boolean drainContainers(SingleVariantStorage<FluidVariant> tank, Inventory inventory, int inputSlot, int outputSlot) {
+    public static boolean drainContainers(SingleVariantStorage<FluidVariant> tank, Container inventory, int inputSlot, int outputSlot) {
         return drainContainers(tank, inventory, inputSlot, outputSlot, false);
     }
 
-    public static boolean drainContainers(SingleVariantStorage<FluidVariant> tank, Inventory inventory, int inputSlot, int outputSlot, boolean voidFluid) {
+    public static boolean drainContainers(SingleVariantStorage<FluidVariant> tank, Container inventory, int inputSlot, int outputSlot, boolean voidFluid) {
         Storage<FluidVariant> itemStorage = getItemFluidStorage(inventory, inputSlot, outputSlot);
 
         if (voidFluid) {
@@ -77,7 +77,7 @@ public class FluidUtils {
         }
     }
 
-    public static boolean fillItemContainerFromBlock(SingleVariantStorage<FluidVariant> source, Inventory inventory, int inputSlot, int outputSlot) {
+    public static boolean fillItemContainerFromBlock(SingleVariantStorage<FluidVariant> source, Container inventory, int inputSlot, int outputSlot) {
         return StorageUtil.move(
                 source,
                 getItemFluidStorage(inventory, inputSlot, outputSlot),
@@ -87,7 +87,7 @@ public class FluidUtils {
         ) > 0;
     }
 
-    public static boolean fillBlockContainerFromItem(SingleVariantStorage<FluidVariant> source, Inventory inventory, int inputSlot, int outputSlot) {
+    public static boolean fillBlockContainerFromItem(SingleVariantStorage<FluidVariant> source, Container inventory, int inputSlot, int outputSlot) {
         return StorageUtil.move(
                 getItemFluidStorage(inventory, inputSlot, outputSlot),
                 source,
@@ -101,7 +101,7 @@ public class FluidUtils {
         return false;
     }
 
-    private static Storage<FluidVariant> getItemFluidStorage(Inventory inventory, int inputSlot, int outputSlot) {
+    private static Storage<FluidVariant> getItemFluidStorage(Container inventory, int inputSlot, int outputSlot) {
         var invWrapper = InventoryStorage.of(inventory, null);
         var input = invWrapper.getSlot(inputSlot);
         var output = invWrapper.getSlot(outputSlot);
@@ -172,7 +172,7 @@ public class FluidUtils {
     }
 
     @Deprecated
-    public static boolean interactWithFluidHandler(PlayerEntity playerIn, SingleVariantStorage<FluidVariant> tank) {
+    public static boolean interactWithFluidHandler(Player playerIn, SingleVariantStorage<FluidVariant> tank) {
         // TODO
         return false;
     }
@@ -183,6 +183,6 @@ public class FluidUtils {
     }
 
     public static String getFluidName(@NotNull Fluid fluid) {
-        return Text.translatable(fluid.getDefaultState().getBlockState().getBlock().getTranslationKey()).getString();
+        return Component.translatable(fluid.defaultFluidState().createLegacyBlock().getBlock().getDescriptionId()).getString();
     }
 }

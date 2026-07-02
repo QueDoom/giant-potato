@@ -1,83 +1,83 @@
 package net.quedoon.giant_potato.block.entity.renderer;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Axis;
 import net.fabricmc.fabric.api.transfer.v1.client.fluid.FluidVariantRendering;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
-import net.minecraft.client.render.RenderLayers;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.block.entity.BlockEntityRenderer;
-import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
-import net.minecraft.client.texture.Sprite;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.util.math.RotationAxis;
-import net.minecraft.world.World;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.material.FluidState;
 import net.quedoon.giant_potato.block.entity.custom.MashTankBlockEntity;
 
 // Credits to TurtyWurty
 // Under MIT-License: https://github.com/DaRealTurtyWurty/1.20-Tutorial-Mod?tab=MIT-1-ov-file#readme
 // Major Rewrites for Fabric
 public class MashTankBlockEntityRenderer implements BlockEntityRenderer<MashTankBlockEntity> {
-    public MashTankBlockEntityRenderer(BlockEntityRendererFactory.Context context) {
+    public MashTankBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
 
     }
 
     @Override
-    public void render(MashTankBlockEntity entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
+    public void render(MashTankBlockEntity entity, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers, int light, int overlay) {
         FluidVariant fluidStack = entity.getFluid();
         if (fluidStack.isBlank())
             return;
 
-        World level = entity.getWorld();
+        Level level = entity.getLevel();
         if (level == null)
             return;
 
-        final Sprite sprite = FluidVariantRendering.getSprite(fluidStack);
+        final TextureAtlasSprite sprite = FluidVariantRendering.getSprite(fluidStack);
         int color = FluidVariantRendering.getColor(fluidStack);
-        FluidState state = fluidStack.getFluid().getDefaultState();
+        FluidState state = fluidStack.getFluid().defaultFluidState();
 
         float height = (((float) entity.fluidStorage.getAmount() / entity.fluidStorage.getCapacity()) * 0.625f) + 0.25f;
 
-        VertexConsumer builder = vertexConsumers.getBuffer(RenderLayers.getFluidLayer(state));
+        VertexConsumer builder = vertexConsumers.getBuffer(ItemBlockRenderTypes.getRenderLayer(state));
 
         // Top Texture
-        drawQuad(builder, matrices, 0.1f, height, 0.1f, 0.9f, height, 0.9f, sprite.getMinU(), sprite.getMinV(), sprite.getMaxU(), sprite.getMaxV(), light, color);
-        drawQuad(builder, matrices, 0.1f, 0, 0.1f, 0.9f, height, 0.1f, sprite.getMinU(), sprite.getMinV(), sprite.getMaxU(), sprite.getMaxV(), light, color);
+        drawQuad(builder, matrices, 0.1f, height, 0.1f, 0.9f, height, 0.9f, sprite.getU0(), sprite.getV0(), sprite.getU1(), sprite.getV1(), light, color);
+        drawQuad(builder, matrices, 0.1f, 0, 0.1f, 0.9f, height, 0.1f, sprite.getU0(), sprite.getV0(), sprite.getU1(), sprite.getV1(), light, color);
 
-        matrices.push();
-        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180));
+        matrices.pushPose();
+        matrices.mulPose(Axis.XP.rotationDegrees(180));
         matrices.translate(0, 0f, -1f);
-        drawQuad(builder, matrices, 0.1f, -0.01f, 0.1f, 0.9f, -0.01f, 0.9f, sprite.getMinU(), sprite.getMinV(), sprite.getMaxU(), sprite.getMaxV(), light, color);
-        matrices.pop();
+        drawQuad(builder, matrices, 0.1f, -0.01f, 0.1f, 0.9f, -0.01f, 0.9f, sprite.getU0(), sprite.getV0(), sprite.getU1(), sprite.getV1(), light, color);
+        matrices.popPose();
 
-        matrices.push();
-        matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
+        matrices.pushPose();
+        matrices.mulPose(Axis.YP.rotationDegrees(180));
         matrices.translate(-1f, 0, -1.8f);
-        drawQuad(builder, matrices, 0.1f, 0, 0.9f, 0.9f, height, 0.9f, sprite.getMinU(), sprite.getMinV(), sprite.getMaxU(), sprite.getMaxV(), light, color);
-        matrices.pop();
+        drawQuad(builder, matrices, 0.1f, 0, 0.9f, 0.9f, height, 0.9f, sprite.getU0(), sprite.getV0(), sprite.getU1(), sprite.getV1(), light, color);
+        matrices.popPose();
 
-        matrices.push();
-        matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(90));
+        matrices.pushPose();
+        matrices.mulPose(Axis.YP.rotationDegrees(90));
         matrices.translate(-1f, 0, 0);
-        drawQuad(builder, matrices, 0.1f, 0, 0.1f, 0.9f, height, 0.1f, sprite.getMinU(), sprite.getMinV(), sprite.getMaxU(), sprite.getMaxV(), light, color);
-        matrices.pop();
+        drawQuad(builder, matrices, 0.1f, 0, 0.1f, 0.9f, height, 0.1f, sprite.getU0(), sprite.getV0(), sprite.getU1(), sprite.getV1(), light, color);
+        matrices.popPose();
 
-        matrices.push();
-        matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(90));
+        matrices.pushPose();
+        matrices.mulPose(Axis.YN.rotationDegrees(90));
         matrices.translate(0, 0, -1f);
-        drawQuad(builder, matrices, 0.1f, 0, 0.1f, 0.9f, height, 0.1f, sprite.getMinU(), sprite.getMinV(), sprite.getMaxU(), sprite.getMaxV(), light, color);
-        matrices.pop();
+        drawQuad(builder, matrices, 0.1f, 0, 0.1f, 0.9f, height, 0.1f, sprite.getU0(), sprite.getV0(), sprite.getU1(), sprite.getV1(), light, color);
+        matrices.popPose();
     }
 
-    private static void drawVertex(VertexConsumer builder, MatrixStack poseStack, float x, float y, float z, float u, float v, int packedLight, int color) {
-        builder.vertex(poseStack.peek().copy(), x, y, z)
-                .color(color)
-                .texture(u, v)
-                .light(packedLight)
-                .normal(1, 0, 0);
+    private static void drawVertex(VertexConsumer builder, PoseStack poseStack, float x, float y, float z, float u, float v, int packedLight, int color) {
+        builder.addVertex(poseStack.last().copy(), x, y, z)
+                .setColor(color)
+                .setUv(u, v)
+                .setLight(packedLight)
+                .setNormal(1, 0, 0);
     }
 
-    private static void drawQuad(VertexConsumer builder, MatrixStack poseStack, float x0, float y0, float z0, float x1, float y1, float z1, float u0, float v0, float u1, float v1, int packedLight, int color) {
+    private static void drawQuad(VertexConsumer builder, PoseStack poseStack, float x0, float y0, float z0, float x1, float y1, float z1, float u0, float v0, float u1, float v1, int packedLight, int color) {
         drawVertex(builder, poseStack, x0, y0, z0, u0, v0, packedLight, color);
         drawVertex(builder, poseStack, x0, y1, z1, u0, v1, packedLight, color);
         drawVertex(builder, poseStack, x1, y1, z1, u1, v1, packedLight, color);

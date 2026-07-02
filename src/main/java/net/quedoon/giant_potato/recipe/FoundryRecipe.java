@@ -4,30 +4,31 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.recipe.*;
-import net.minecraft.recipe.book.CraftingRecipeCategory;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.world.World;
-
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.NonNullList;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.Level;
 import java.util.List;
 
-public record FoundryRecipe(ItemStack output, DefaultedList<Ingredient> ingredients, int maxProgress) implements Recipe<FoundryRecipeInput> {
+public record FoundryRecipe(ItemStack output, NonNullList<Ingredient> ingredients, int maxProgress) implements Recipe<FoundryRecipeInput> {
     @Override
-    public DefaultedList<Ingredient> getIngredients() {
+    public NonNullList<Ingredient> getIngredients() {
         return ingredients;
     }
 
     @Override
-    public boolean matches(FoundryRecipeInput input, World world) {
-        if (world.isClient) {
+    public boolean matches(FoundryRecipeInput input, Level world) {
+        if (world.isClientSide) {
             return false;
         }
         for (int i = 0; i < ingredients.size(); i++) {
-            if (!ingredients.get(i).test(input.getStackInSlot(i))) {
+            if (!ingredients.get(i).test(input.getItem(i))) {
                 return false;
             }
         }
@@ -35,17 +36,17 @@ public record FoundryRecipe(ItemStack output, DefaultedList<Ingredient> ingredie
     }
 
     @Override
-    public ItemStack craft(FoundryRecipeInput input, RegistryWrapper.WrapperLookup lookup) {
+    public ItemStack assemble(FoundryRecipeInput recipeInput, HolderLookup.Provider provider) {
         return output.copy();
     }
 
     @Override
-    public boolean fits(int width, int height) {
+    public boolean canCraftInDimensions(int width, int height) {
         return false;
     }
 
     @Override
-    public ItemStack getResult(RegistryWrapper.WrapperLookup registriesLookup) {
+    public ItemStack getResultItem(HolderLookup.Provider registriesLookup) {
         return output;
     }
 
@@ -62,8 +63,8 @@ public record FoundryRecipe(ItemStack output, DefaultedList<Ingredient> ingredie
     public static class Serializer implements RecipeSerializer<FoundryRecipe> {
         private static final MapCodec<FoundryRecipe> CODEC = RecordCodecBuilder.mapCodec(
                 instance -> instance.group(
-                                ItemStack.VALIDATED_CODEC.fieldOf("result").forGetter(recipe -> recipe.output),
-                                Ingredient.DISALLOW_EMPTY_CODEC
+                                ItemStack.STRICT_CODEC.fieldOf("result").forGetter(recipe -> recipe.output),
+                                Ingredient.CODEC_NONEMPTY
                                         .listOf()
                                         .fieldOf("ingredients")
                                         .flatXmap(
@@ -74,7 +75,7 @@ public record FoundryRecipe(ItemStack output, DefaultedList<Ingredient> ingredie
                                                     } else {
                                                         return ingredients2.length > 3
                                                                 ? DataResult.error(() -> "Too many ingredients for foundry recipe")
-                                                                : DataResult.success(DefaultedList.copyOf(Ingredient.EMPTY, ingredients2));
+                                                                : DataResult.success(NonNullList.of(Ingredient.EMPTY, ingredients2));
                                                     }
                                                 },
                                                 DataResult::success
@@ -84,7 +85,7 @@ public record FoundryRecipe(ItemStack output, DefaultedList<Ingredient> ingredie
                         )
                         .apply(instance, FoundryRecipe::new)
         );
-        public static final PacketCodec<RegistryByteBuf, FoundryRecipe> PACKET_CODEC = PacketCodec.ofStatic(
+        public static final StreamCodec<RegistryFriendlyByteBuf, FoundryRecipe> PACKET_CODEC = StreamCodec.of(
                 FoundryRecipe.Serializer::write, FoundryRecipe.Serializer::read
         );
 
@@ -94,27 +95,27 @@ public record FoundryRecipe(ItemStack output, DefaultedList<Ingredient> ingredie
         }
 
         @Override
-        public PacketCodec<RegistryByteBuf, FoundryRecipe> packetCodec() {
+        public StreamCodec<RegistryFriendlyByteBuf, FoundryRecipe> streamCodec() {
             return PACKET_CODEC;
         }
 
-        private static FoundryRecipe read(RegistryByteBuf buf) {
+        private static FoundryRecipe read(RegistryFriendlyByteBuf buf) {
             int i = buf.readVarInt();
-            DefaultedList<Ingredient> defaultedList = DefaultedList.ofSize(i, Ingredient.EMPTY);
-            defaultedList.replaceAll(empty -> Ingredient.PACKET_CODEC.decode(buf));
-            ItemStack itemStack = ItemStack.PACKET_CODEC.decode(buf);
+            NonNullList<Ingredient> defaultedList = NonNullList.withSize(i, Ingredient.EMPTY);
+            defaultedList.replaceAll(empty -> Ingredient.CONTENTS_STREAM_CODEC.decode(buf));
+            ItemStack itemStack = ItemStack.STREAM_CODEC.decode(buf);
             int l = buf.readVarInt();
             return new FoundryRecipe(itemStack, defaultedList, l);
         }
 
-        private static void write(RegistryByteBuf buf, FoundryRecipe recipe) {
+        private static void write(RegistryFriendlyByteBuf buf, FoundryRecipe recipe) {
             buf.writeVarInt(recipe.ingredients.size());
 
             for (Ingredient ingredient : recipe.ingredients) {
-                Ingredient.PACKET_CODEC.encode(buf, ingredient);
+                Ingredient.CONTENTS_STREAM_CODEC.encode(buf, ingredient);
             }
 
-            ItemStack.PACKET_CODEC.encode(buf, recipe.output);
+            ItemStack.STREAM_CODEC.encode(buf, recipe.output);
 
             buf.writeVarInt(recipe.maxProgress);
         }

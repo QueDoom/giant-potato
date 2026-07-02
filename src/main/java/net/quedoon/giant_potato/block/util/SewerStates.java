@@ -1,8 +1,8 @@
 package net.quedoon.giant_potato.block.util;
 
-import net.minecraft.util.StringIdentifiable;
+import net.minecraft.util.StringRepresentable;
 
-public enum SewerStates implements StringIdentifiable {
+public enum SewerStates implements StringRepresentable {
     CONNECT_LEFT("left"),
     LEFT_ONLY("left_only"),
     CONNECT_FORWARD("forward"),
@@ -16,7 +16,7 @@ public enum SewerStates implements StringIdentifiable {
     private final String name;
 
     @Override
-    public String asString() {
+    public String getSerializedName() {
         return this.name;
     }
 
@@ -25,6 +25,6 @@ public enum SewerStates implements StringIdentifiable {
     }
 
     public String toString() {
-        return this.asString();
+        return this.getSerializedName();
     }
 }

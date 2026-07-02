@@ -1,6 +1,6 @@
 package net.quedoon.giant_potato.util;
 
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.Direction;
 
 public class GetStringFromDirection {
     public static String minecraftDir(Direction direction) {

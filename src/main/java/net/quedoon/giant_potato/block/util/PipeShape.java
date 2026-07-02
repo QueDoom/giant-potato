@@ -1,8 +1,8 @@
 package net.quedoon.giant_potato.block.util;
 
-import net.minecraft.util.StringIdentifiable;
+import net.minecraft.util.StringRepresentable;
 public class PipeShape {
-    public enum PipeShapes implements StringIdentifiable {
+    public enum PipeShapes implements StringRepresentable {
         NONE("none"),
         TRUE("true"),
         OUTPUT("output");
@@ -10,7 +10,7 @@ public class PipeShape {
         private final String name;
 
         @Override
-        public String asString() {
+        public String getSerializedName() {
             return this.name;
         }
 
@@ -19,7 +19,7 @@ public class PipeShape {
         }
 
         public String toString() {
-            return this.asString();
+            return this.getSerializedName();
         }
     }
 

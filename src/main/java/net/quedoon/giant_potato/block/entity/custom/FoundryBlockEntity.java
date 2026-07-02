@@ -1,25 +1,25 @@
 package net.quedoon.giant_potato.block.entity.custom;
 
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.Inventories;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.listener.ClientPlayPacketListener;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
-import net.minecraft.recipe.RecipeEntry;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.screen.PropertyDelegate;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.ContainerHelper;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.quedoon.giant_potato.GiantPotato;
 import net.quedoon.giant_potato.block.entity.util.ImplementedInventory;
 import net.quedoon.giant_potato.block.entity.ModBlockEntities;
@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class FoundryBlockEntity extends BlockEntity implements GeoBlockEntity, ExtendedScreenHandlerFactory<BlockPos>, ImplementedInventory {
-    private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(4, ItemStack.EMPTY);
+    private final NonNullList<ItemStack> inventory = NonNullList.withSize(4, ItemStack.EMPTY);
     protected boolean active = Boolean.FALSE;
     private boolean open = Boolean.FALSE;
     private int openTimer = -1;
@@ -49,7 +49,7 @@ public class FoundryBlockEntity extends BlockEntity implements GeoBlockEntity, E
     private static final int INPUT_SLOTS = 3;
     private static final int OUTPUT_SLOT = 3;
 
-    protected final PropertyDelegate propertyDelegate;
+    protected final ContainerData propertyDelegate;
     private int progress = 0;
     private int maxProgress = 72;
     private final int DEFAULT_MAX_PROGRESS = 72;
@@ -69,7 +69,7 @@ public class FoundryBlockEntity extends BlockEntity implements GeoBlockEntity, E
 
     public FoundryBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.FOUNDRY_BE, pos, state);
-        this.propertyDelegate = new PropertyDelegate() {
+        this.propertyDelegate = new ContainerData() {
             @Override
             public int get(int index) {
                 return switch (index) {
@@ -90,16 +90,16 @@ public class FoundryBlockEntity extends BlockEntity implements GeoBlockEntity, E
             }
 
             @Override
-            public int size() {
+            public int getCount() {
                 return 3;
             }
         };
     }
 
     @Override
-    protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
-        super.writeNbt(nbt, registryLookup);
-        Inventories.writeNbt(nbt, inventory, registryLookup);
+    protected void saveAdditional(CompoundTag nbt, HolderLookup.Provider registryLookup) {
+        super.saveAdditional(nbt, registryLookup);
+        ContainerHelper.saveAllItems(nbt, inventory, registryLookup);
         nbt.putInt("giant_potato.foundry.progress", progress);
         nbt.putInt("giant_potato.foundry.maxProgress", maxProgress);
         nbt.putInt("giant_potato.foundry.mash", mash);
@@ -108,45 +108,45 @@ public class FoundryBlockEntity extends BlockEntity implements GeoBlockEntity, E
     }
 
     @Override
-    protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
-        Inventories.readNbt(nbt, inventory, registryLookup);
+    protected void loadAdditional(CompoundTag nbt, HolderLookup.Provider registryLookup) {
+        ContainerHelper.loadAllItems(nbt, inventory, registryLookup);
         progress = nbt.getInt("giant_potato.foundry.progress");
         maxProgress = nbt.getInt("giant_potato.foundry.maxProgress");
         mash = nbt.getInt("giant_potato.foundry.mash");
         open = nbt.getBoolean("giant_potato.foundry.open");
         active = nbt.getBoolean("giant_potato.foundry.active");
 
-        super.readNbt(nbt, registryLookup);
+        super.loadAdditional(nbt, registryLookup);
     }
 
     @Override
-    public BlockPos getScreenOpeningData(ServerPlayerEntity serverPlayerEntity) {
-        return this.pos;
+    public BlockPos getScreenOpeningData(ServerPlayer serverPlayerEntity) {
+        return this.worldPosition;
     }
 
     @Override
-    public DefaultedList<ItemStack> getItems() {
+    public NonNullList<ItemStack> getItems() {
         return inventory;
     }
 
     @Override
-    public Text getDisplayName() {
-        return Text.translatable("gui." + GiantPotato.MOD_ID + ".foundry");
+    public Component getDisplayName() {
+        return Component.translatable("gui." + GiantPotato.MOD_ID + ".foundry");
     }
 
     @Override
-    public @Nullable ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
+    public @Nullable AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player player) {
         return new FoundryScreenHandler(syncId, playerInventory, this, propertyDelegate);
     }
 
     @Override
-    public int size() {
+    public int getContainerSize() {
         return inventory.size();
     }
 
     public void setOpen() {
         this.setOpenTimer();
-        markDirty();
+        setChanged();
     }
 
 
@@ -189,10 +189,10 @@ public class FoundryBlockEntity extends BlockEntity implements GeoBlockEntity, E
 
     // // // // // // // // //
 
-    public void tick(World world, BlockPos pos, BlockState state) {
+    public void tick(Level world, BlockPos pos, BlockState state) {
         if (this.openTimer >= 0) {
             this.open = this.openTimer == 0;
-            markDirty();
+            setChanged();
             this.openTimer--;
         }
 
@@ -200,7 +200,7 @@ public class FoundryBlockEntity extends BlockEntity implements GeoBlockEntity, E
         if (hasRecipe() && canInsertIntoOutputSlot()) {
             increaseCraftingProgress();
             this.active = true;
-            markDirty(world, pos, state);
+            setChanged(world, pos, state);
 
             if (hasCraftingFinished()) {
                 craftItem();
@@ -209,7 +209,7 @@ public class FoundryBlockEntity extends BlockEntity implements GeoBlockEntity, E
         } else {
             resetProgress();
             this.active = false;
-            markDirty(world, pos, state);
+            setChanged(world, pos, state);
         }
     }
 
@@ -219,13 +219,13 @@ public class FoundryBlockEntity extends BlockEntity implements GeoBlockEntity, E
     }
 
     private void craftItem() {
-        Optional<RecipeEntry<FoundryRecipe>> recipe = getCurrentRecipe();
+        Optional<RecipeHolder<FoundryRecipe>> recipe = getCurrentRecipe();
 
         for (int i = 0; i < INPUT_SLOTS; i++) {
-            this.removeStack(i, 1);
+            this.removeItem(i, 1);
         }
-        this.setStack(OUTPUT_SLOT, new ItemStack(recipe.get().value().output().getItem(),
-                this.getStack(OUTPUT_SLOT).getCount() + recipe.get().value().output().getCount()));
+        this.setItem(OUTPUT_SLOT, new ItemStack(recipe.get().value().output().getItem(),
+                this.getItem(OUTPUT_SLOT).getCount() + recipe.get().value().output().getCount()));
     }
 
     private boolean hasCraftingFinished() {
@@ -237,12 +237,12 @@ public class FoundryBlockEntity extends BlockEntity implements GeoBlockEntity, E
     }
 
     private boolean canInsertIntoOutputSlot() {
-        return this.getStack(OUTPUT_SLOT).isEmpty() ||
-                this.getStack(OUTPUT_SLOT).getCount() < this.getStack(OUTPUT_SLOT).getMaxCount();
+        return this.getItem(OUTPUT_SLOT).isEmpty() ||
+                this.getItem(OUTPUT_SLOT).getCount() < this.getItem(OUTPUT_SLOT).getMaxStackSize();
     }
 
     private boolean hasRecipe() {
-        Optional<RecipeEntry<FoundryRecipe>> recipe = getCurrentRecipe();
+        Optional<RecipeHolder<FoundryRecipe>> recipe = getCurrentRecipe();
         if (recipe.isEmpty()) {
             return false;
         }
@@ -251,29 +251,29 @@ public class FoundryBlockEntity extends BlockEntity implements GeoBlockEntity, E
         return canInsertAmountIntoOutputSlot(output.getCount()) && canInsertItemIntoOutputSlot(output);
     }
 
-    private Optional<RecipeEntry<FoundryRecipe>> getCurrentRecipe() {
+    private Optional<RecipeHolder<FoundryRecipe>> getCurrentRecipe() {
         List<ItemStack> input = new ArrayList<>();
         for (int i = 0; i < INPUT_SLOTS; i++) {
             input.add(inventory.get(i));
         }
 
-        return this.getWorld().getRecipeManager()
-                .getFirstMatch(ModRecipes.FOUNDRY_TYPE, new FoundryRecipeInput(input), this.getWorld());
+        return this.getLevel().getRecipeManager()
+                .getRecipeFor(ModRecipes.FOUNDRY_TYPE, new FoundryRecipeInput(input), this.getLevel());
     }
 
     private boolean canInsertItemIntoOutputSlot(ItemStack output) {
-        return this.getStack(OUTPUT_SLOT).isEmpty() || this.getStack(OUTPUT_SLOT).getItem() == output.getItem();
+        return this.getItem(OUTPUT_SLOT).isEmpty() || this.getItem(OUTPUT_SLOT).getItem() == output.getItem();
     }
 
     private boolean canInsertAmountIntoOutputSlot(int count) {
-        int maxCount = this.getStack(OUTPUT_SLOT).isEmpty() ? 64 : this.getStack(OUTPUT_SLOT).getMaxCount();
-        int currentCount = this.getStack(OUTPUT_SLOT).getCount();
+        int maxCount = this.getItem(OUTPUT_SLOT).isEmpty() ? 64 : this.getItem(OUTPUT_SLOT).getMaxStackSize();
+        int currentCount = this.getItem(OUTPUT_SLOT).getCount();
 
         return maxCount >= currentCount + count;
     }
 
     @Override
-    public @Nullable Packet<ClientPlayPacketListener> toUpdatePacket() {
-        return BlockEntityUpdateS2CPacket.create(this);
+    public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 }

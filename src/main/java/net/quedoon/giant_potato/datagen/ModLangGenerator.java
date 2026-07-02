@@ -2,7 +2,7 @@ package net.quedoon.giant_potato.datagen;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
-import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.core.HolderLookup;
 import net.quedoon.giant_potato.block.ModBlocks;
 import net.quedoon.giant_potato.fluid.ModFluids;
 import net.quedoon.giant_potato.item.ModItems;
@@ -11,12 +11,12 @@ import net.quedoon.giant_potato.util.ModTags;
 import java.util.concurrent.CompletableFuture;
 
 public class ModLangGenerator extends FabricLanguageProvider {
-    public ModLangGenerator(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+    public ModLangGenerator(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, registryLookup);
     }
 
     @Override
-    public void generateTranslations(RegistryWrapper.WrapperLookup wrapperLookup, TranslationBuilder translationBuilder) {
+    public void generateTranslations(HolderLookup.Provider wrapperLookup, TranslationBuilder translationBuilder) {
         // Blocks
         translationBuilder.add(ModBlocks.MASH_BOWL, "Mash Bowl");
         translationBuilder.add(ModBlocks.MASH_TANK, "Mash Tank");
@@ -25,9 +25,8 @@ public class ModLangGenerator extends FabricLanguageProvider {
         translationBuilder.add(ModItems.FOUNDRY, "Foundry");
         translationBuilder.add(ModItems.CRUSHER_WHEEL, "Crushing Wheel");
         translationBuilder.add(ModBlocks.CRUSHER, "Crusher");
-        translationBuilder.add(ModFluids.MASH_BUCKET, "Mash Bucket");
-        translationBuilder.add(ModFluids.POISONOUS_MASH_BUCKET, "Poisonous Mash Bucket");
         translationBuilder.add(ModBlocks.SEWER_DRAIN, "Sewer Drain");
+        translationBuilder.add(ModBlocks.SEWER, "Sewer");
 
         // Items
         translationBuilder.add(ModItems.TILLER, "Tiller");
@@ -38,6 +37,9 @@ public class ModLangGenerator extends FabricLanguageProvider {
         translationBuilder.add(ModItems.POISONOUS_POTATO_ALLOY, "Poisonous Potato Alloy");
         translationBuilder.add(ModItems.WRENCH, "Wrench");
         translationBuilder.add(ModItems.MIDAS_HAND, "Midas's Hand");
+        translationBuilder.add(ModFluids.MASH_BUCKET, "Mash Bucket");
+        translationBuilder.add(ModFluids.SEWER_WATER_BUCKET, "Sewer Water Bucket");
+
 
 
         // Tags
@@ -50,6 +52,8 @@ public class ModLangGenerator extends FabricLanguageProvider {
         // Fluids
         translationBuilder.add(ModFluids.MASH_BLOCK, "Mash");
         translationBuilder.add("block.giant_potato.mash", "Mash");
+        translationBuilder.add("block.giant_potato.sewer_water", "Sewer Water");
+        translationBuilder.add("block.giant_potato.sewer_water_block", "Sewer Water");
 
         // GUI
         translationBuilder.add("gui.giant_potato.foundry", "Alloying");

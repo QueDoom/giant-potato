@@ -2,8 +2,8 @@ package net.quedoon.giant_potato.datagen;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.registry.tag.FluidTags;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.tags.FluidTags;
 import net.quedoon.giant_potato.fluid.ModFluids;
 import net.quedoon.giant_potato.item.ModItems;
 import net.quedoon.giant_potato.util.ModTags;
@@ -11,21 +11,21 @@ import net.quedoon.giant_potato.util.ModTags;
 import java.util.concurrent.CompletableFuture;
 
 public class ModFluidTagProvider extends FabricTagProvider.FluidTagProvider {
-    public ModFluidTagProvider(FabricDataOutput output, CompletableFuture<RegistryWrapper.WrapperLookup> completableFuture) {
+    public ModFluidTagProvider(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> completableFuture) {
         super(output, completableFuture);
     }
 
     @Override
-    protected void configure(RegistryWrapper.WrapperLookup wrapperLookup) {
-        this.getOrCreateTagBuilder(FluidTags.WATER)
+    protected void addTags(HolderLookup.Provider wrapperLookup) {
+        getOrCreateTagBuilder(FluidTags.WATER)
                 .add(ModFluids.MASH).add(ModFluids.MASH_FLOWING_UNUSED)
                 .add(ModFluids.POISONOUS_MASH).add(ModFluids.POISONOUS_MASH_FLOWING_UNUSED);
 
-        this.getOrCreateTagBuilder(ModTags.Fluid.MASH)
+        getOrCreateTagBuilder(ModTags.Fluid.MASH)
                 .add(ModFluids.MASH).add(ModFluids.MASH_FLOWING_UNUSED);
-        this.getOrCreateTagBuilder(ModTags.Fluid.POISONOUS_MASH)
+        getOrCreateTagBuilder(ModTags.Fluid.POISONOUS_MASH)
                 .add(ModFluids.POISONOUS_MASH).add(ModFluids.POISONOUS_MASH_FLOWING_UNUSED);
-        this.getOrCreateTagBuilder(ModTags.Fluid.MASH_FLUIDS)
+        getOrCreateTagBuilder(ModTags.Fluid.MASH_FLUIDS)
                 .addTag(ModTags.Fluid.MASH).addTag(ModTags.Fluid.POISONOUS_MASH);
     }
 }

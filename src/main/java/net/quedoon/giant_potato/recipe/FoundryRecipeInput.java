@@ -1,18 +1,17 @@
 package net.quedoon.giant_potato.recipe;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.recipe.input.RecipeInput;
-
 import java.util.List;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeInput;
 
 public record FoundryRecipeInput(List<ItemStack> input) implements RecipeInput {
     @Override
-    public ItemStack getStackInSlot(int slot) {
+    public ItemStack getItem(int slot) {
         return input.get(slot);
     }
 
     @Override
-    public int getSize() {
+    public int size() {
         return 3;
     }
 }

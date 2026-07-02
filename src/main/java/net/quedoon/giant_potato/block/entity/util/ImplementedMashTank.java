@@ -4,10 +4,7 @@ import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleVariantStorage;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.quedoon.giant_potato.fluid.ModFluids;
 import net.quedoon.giant_potato.util.ModTags;
 import org.jetbrains.annotations.NotNull;
@@ -38,8 +35,8 @@ public interface ImplementedMashTank {
 
             @Override
             protected void onFinalCommit() {
-                blockEntity.markDirty();
-                blockEntity.getWorld().updateListeners(blockEntity.getPos(), blockEntity.getCachedState(), blockEntity.getCachedState(), 3);
+                blockEntity.setChanged();
+                blockEntity.getLevel().sendBlockUpdated(blockEntity.getBlockPos(), blockEntity.getBlockState(), blockEntity.getBlockState(), 3);
             }
 
             @Override

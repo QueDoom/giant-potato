@@ -1,21 +1,21 @@
 package net.quedoon.giant_potato.util;
 
-import net.minecraft.block.Block;
-import net.minecraft.item.Item;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.tag.TagKey;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
 import net.quedoon.giant_potato.GiantPotato;
 
 public class ModTags {
     public static class Fluid {
 
-        public static final TagKey<net.minecraft.fluid.Fluid> MASH = createTag("mash");
-        public static final TagKey<net.minecraft.fluid.Fluid> POISONOUS_MASH = createTag("poisonous_mash");
-        public static final TagKey<net.minecraft.fluid.Fluid> MASH_FLUIDS = createTag("mash_fluids");
+        public static final TagKey<net.minecraft.world.level.material.Fluid> MASH = createTag("mash");
+        public static final TagKey<net.minecraft.world.level.material.Fluid> POISONOUS_MASH = createTag("poisonous_mash");
+        public static final TagKey<net.minecraft.world.level.material.Fluid> MASH_FLUIDS = createTag("mash_fluids");
 
-        private static TagKey<net.minecraft.fluid.Fluid> createTag(String name) {
-            return TagKey.of(RegistryKeys.FLUID, Identifier.of(GiantPotato.MOD_ID, name));
+        private static TagKey<net.minecraft.world.level.material.Fluid> createTag(String name) {
+            return TagKey.create(Registries.FLUID, ResourceLocation.fromNamespaceAndPath(GiantPotato.MOD_ID, name));
         }
     }
     public static class Blocks {
@@ -33,7 +33,7 @@ public class ModTags {
 
 
         private static TagKey<Block> createTag(String name) {
-            return TagKey.of(RegistryKeys.BLOCK, Identifier.of(GiantPotato.MOD_ID, name));
+            return TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath(GiantPotato.MOD_ID, name));
         }
     }
     public static class Items {
@@ -49,7 +49,7 @@ public class ModTags {
 
 
         private static TagKey<Item> createTag(String name) {
-            return TagKey.of(RegistryKeys.ITEM, Identifier.of(GiantPotato.MOD_ID, name));
+            return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(GiantPotato.MOD_ID, name));
         }
     }
 }

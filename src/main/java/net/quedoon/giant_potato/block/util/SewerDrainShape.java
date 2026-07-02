@@ -1,8 +1,8 @@
 package net.quedoon.giant_potato.block.util;
 
-import net.minecraft.util.StringIdentifiable;
+import net.minecraft.util.StringRepresentable;
 
-public enum SewerDrainShape implements StringIdentifiable {
+public enum SewerDrainShape implements StringRepresentable {
     DRAIN_ONLY("drain_only"),
     DRAIN_FALL("drain_fall"),
     DRAIN_TUNNEL("drain_tunnel"),
@@ -11,7 +11,7 @@ public enum SewerDrainShape implements StringIdentifiable {
     private final String name;
 
     @Override
-    public String asString() {
+    public String getSerializedName() {
         return this.name;
     }
 
@@ -20,6 +20,6 @@ public enum SewerDrainShape implements StringIdentifiable {
     }
 
     public String toString() {
-        return this.asString();
+        return this.getSerializedName();
     }
 }

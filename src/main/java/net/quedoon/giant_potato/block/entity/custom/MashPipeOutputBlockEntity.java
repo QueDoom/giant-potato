@@ -3,10 +3,10 @@ package net.quedoon.giant_potato.block.entity.custom;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleVariantStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
-import net.minecraft.block.BlockState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.quedoon.giant_potato.GiantPotato;
 import net.quedoon.giant_potato.block.ModBlocks;
 import net.quedoon.giant_potato.block.entity.ModBlockEntities;
@@ -26,7 +26,7 @@ public class MashPipeOutputBlockEntity extends AbstractMashPipeBlockEntity {
         super(ModBlockEntities.MASH_PIPE_OUTPUT_BE, pos, state, (AbstractPipeBlock) ModBlocks.MASH_PIPE, (AbstractPipeBlock) ModBlocks.MASH_PIPE_OUTPUT);
     }
 
-    public void tick(World world, BlockPos pos, BlockState state) {
+    public void tick(Level world, BlockPos pos, BlockState state) {
         if (this.cooldown < 5) {
             this.cooldown += 1;
         } else {
@@ -40,15 +40,15 @@ public class MashPipeOutputBlockEntity extends AbstractMashPipeBlockEntity {
         }
     }
 
-    public void attemptToFillInputs(World world, BlockPos pos, BlockState state) {
+    public void attemptToFillInputs(Level world, BlockPos pos, BlockState state) {
         for (Direction outputDirection : getOutputDirections(this)) {
             GiantPotato.LOGGER.info("Logic for output: {}", outputDirection.getName());
-            BlockState pullFrom = world.getBlockState(pos.offset(outputDirection));
+            BlockState pullFrom = world.getBlockState(pos.relative(outputDirection));
             if(!(pullFrom instanceof ImplementedMashTank mashTankFrom)) return;
             SingleVariantStorage<FluidVariant> fluidStorageFrom = mashTankFrom.getMashStorage();
             if(!(fluidStorageFrom.amount >= 10)) return;
 
-            if(!(pullFrom.isIn(ModTags.Blocks.MASH_MACHINES))) return;
+            if(!(pullFrom.is(ModTags.Blocks.MASH_MACHINES))) return;
 
             for (BlockPos input : findInputs(world, pos)) {
                 GiantPotato.LOGGER.info("Logic for input: {}", input);
@@ -70,7 +70,7 @@ public class MashPipeOutputBlockEntity extends AbstractMashPipeBlockEntity {
         }
     }
 
-    public static Collection<BlockPos> findInputs(World world, BlockPos pos) {
+    public static Collection<BlockPos> findInputs(Level world, BlockPos pos) {
         //positions that are already processed
         Collection<BlockPos> visitedPositions = new HashSet<>();
         //positions we are currently looking at
@@ -86,13 +86,13 @@ public class MashPipeOutputBlockEntity extends AbstractMashPipeBlockEntity {
             for(BlockPos currentPosition : currentPositions) {
                 for(Direction dir : Direction.values()) {
                     //check each neighbor of the current positions
-                    BlockPos newPos = currentPosition.offset(dir);
+                    BlockPos newPos = currentPosition.relative(dir);
                     //Do not check blocks that were already checked
                     if(!visitedPositions.contains(newPos)) {
-                        if (world.getBlockState(newPos).isIn(ModTags.Blocks.MASH_PIPES)) {
+                        if (world.getBlockState(newPos).is(ModTags.Blocks.MASH_PIPES)) {
                             //Add pipes to positions for the next iteration
                             newPositions.add(newPos);
-                        } else if (world.getBlockState(newPos).isIn(ModTags.Blocks.MASH_MACHINES)) {
+                        } else if (world.getBlockState(newPos).is(ModTags.Blocks.MASH_MACHINES)) {
                             //Add machines to output set
                             machines.add(newPos);
                         }

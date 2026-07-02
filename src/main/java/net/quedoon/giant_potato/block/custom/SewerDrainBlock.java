@@ -1,34 +1,35 @@
 package net.quedoon.giant_potato.block.custom;
 
 import com.mojang.serialization.MapCodec;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.network.packet.s2c.play.PositionFlag;
-import net.minecraft.particle.ParticleEffect;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.registry.tag.BlockTags;
-import net.minecraft.registry.tag.FluidTags;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.EnumProperty;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
-import net.minecraft.world.biome.Biome;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.RelativeMovement;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.quedoon.giant_potato.GiantPotato;
 import net.quedoon.giant_potato.block.ModBlocks;
 import net.quedoon.giant_potato.block.util.ModProperties;
 import net.quedoon.giant_potato.block.util.SewerDrainShape;
+import net.quedoon.giant_potato.fluid.ModFluids;
 import net.quedoon.giant_potato.util.ModTags;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,37 +39,37 @@ import java.util.random.RandomGenerator;
 public class SewerDrainBlock extends Block {
     public static final EnumProperty<SewerDrainShape> DRAIN_SHAPE = ModProperties.DRAIN_SHAPE;
 
-    public static final MapCodec<SewerDrainBlock> CODEC = createCodec(SewerDrainBlock::new);
+    public static final MapCodec<SewerDrainBlock> CODEC = simpleCodec(SewerDrainBlock::new);
 
-    public static final VoxelShape shape_drain = Block.createCuboidShape(0, 14, 0, 16, 16, 16);
-    public static final VoxelShape shape_drain_low = Block.createCuboidShape(0, 0, 0, 16, 2, 16);
-    public static final VoxelShape shape_tunnel = VoxelShapes.union(
-            Block.createCuboidShape(0, 0, 0, 16, 16, 3),
-            Block.createCuboidShape(0, 0, 0, 3, 16, 16),
-            Block.createCuboidShape(0, 0, 13, 16, 16, 16),
-            Block.createCuboidShape(13, 0, 0, 16, 16, 16)
+    public static final VoxelShape shape_drain = Block.box(0, 14, 0, 16, 16, 16);
+    public static final VoxelShape shape_drain_low = Block.box(0, 0, 0, 16, 2, 16);
+    public static final VoxelShape shape_tunnel = Shapes.or(
+            Block.box(0, 0, 0, 16, 16, 3),
+            Block.box(0, 0, 0, 3, 16, 16),
+            Block.box(0, 0, 13, 16, 16, 16),
+            Block.box(13, 0, 0, 16, 16, 16)
     );
 
     @Override
-    protected VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        return switch (state.get(DRAIN_SHAPE)) {
+    protected VoxelShape getCollisionShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+        return switch (state.getValue(DRAIN_SHAPE)) {
             case SewerDrainShape.DRAIN_FALL -> shape_drain_low;
-            case SewerDrainShape.DRAIN_TUNNEL -> VoxelShapes.union(shape_drain, shape_tunnel);
+            case SewerDrainShape.DRAIN_TUNNEL -> Shapes.or(shape_drain, shape_tunnel);
             case SewerDrainShape.TUNNEL -> shape_tunnel;
             default -> shape_drain;
         };
     }
 
-    public @Nullable BlockPos findBottomDrain(World world, BlockPos pos) {
+    public @Nullable BlockPos findBottomDrain(Level world, BlockPos pos) {
         int MAX_RANGE = 10;
         for (int i = 0; i < MAX_RANGE; i++) {
-            BlockPos negY = pos.down(i);
-            if (!world.getBlockState(negY).isOf(ModBlocks.SEWER_DRAIN)) {
-                return i == 1 ? null : world.getBlockState(negY).isIn(BlockTags.AIR) ? negY : null;
+            BlockPos negY = pos.below(i);
+            if (!world.getBlockState(negY).is(ModBlocks.SEWER_DRAIN)) {
+                return i == 1 ? null : world.getBlockState(negY).is(BlockTags.AIR) ? negY : null;
             }
         }
-        BlockPos negYMAX = pos.down(MAX_RANGE++);
-        if (world.getBlockState(negYMAX).isIn(BlockTags.AIR)) {
+        BlockPos negYMAX = pos.below(MAX_RANGE++);
+        if (world.getBlockState(negYMAX).is(BlockTags.AIR)) {
             return negYMAX;
         } else {
             return null;
@@ -76,81 +77,103 @@ public class SewerDrainBlock extends Block {
     }
 
     @Override
-    public void onSteppedOn(World world, BlockPos pos, BlockState state, Entity entity) {
-        if (!(world.isClient())) {
-            if (!(world instanceof ServerWorld serverWorld)) return;
+    public void stepOn(Level world, BlockPos pos, BlockState state, Entity entity) {
+        if (!(world.isClientSide())) {
+            if (!(world instanceof ServerLevel serverWorld)) return;
             @Nullable BlockPos outputPos = findBottomDrain(world, pos);
             if (entity instanceof ItemEntity item && outputPos != null) {
-                item.teleport(serverWorld, Math.floor(entity.getBlockX()) + 0.5, outputPos.getY() + 0.9, entity.getBlockZ() + 0.5, PositionFlag.VALUES, 0, 0);
-                entity.setVelocity(new Vec3d(0,0,0));
+                item.teleportTo(serverWorld, Math.floor(entity.getBlockX()) + 0.5, outputPos.getY() + 0.9, entity.getBlockZ() + 0.5, RelativeMovement.ALL, 0, 0);
+                entity.setDeltaMovement(new Vec3(0,0,0));
             }
         }
 
 
-        super.onSteppedOn(world, pos, state, entity);
+        super.stepOn(world, pos, state, entity);
     }
 
     @Override
-    protected VoxelShape getCullingShape(BlockState state, BlockView world, BlockPos pos) {
-        return getCollisionShape(state, world, pos, ShapeContext.absent());
+    protected VoxelShape getOcclusionShape(BlockState state, BlockGetter world, BlockPos pos) {
+        return getCollisionShape(state, world, pos, CollisionContext.empty());
     }
 
     @Override
-    protected VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+    protected VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
         return getCollisionShape(state, world, pos, context);
     }
 
-    public SewerDrainBlock(Settings settings) {
+    public SewerDrainBlock(Properties settings) {
         super(settings);
-        this.setDefaultState(this.getStateManager().getDefaultState().with(DRAIN_SHAPE, SewerDrainShape.DRAIN_ONLY));
+        this.registerDefaultState(this.getStateDefinition().any().setValue(DRAIN_SHAPE, SewerDrainShape.DRAIN_ONLY));
     }
 
     @Override
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(DRAIN_SHAPE);
     }
 
     @Override
-    public void precipitationTick(BlockState state, World world, BlockPos pos, Biome.Precipitation precipitation) {
-        if (!world.isClient()) return;
-        if (shouldRain(world, precipitation)) {
+    public void handlePrecipitation(BlockState state, Level world, BlockPos pos, Biome.Precipitation precipitation) {
+        GiantPotato.LOGGER.info("PRECIPITATION");
+        if (world.isClientSide()) {
+            GiantPotato.LOGGER.info("PRECIPITATION CLIENT");
+            if (shouldRain(world, precipitation)) {
+                GiantPotato.LOGGER.info("PRECIPITATION SHOULD RAIN");
+                if (precipitation == Biome.Precipitation.RAIN) {
+                    createParticle(world, pos, ParticleTypes.DRIPPING_WATER);
+                    GiantPotato.LOGGER.info("PRECIPITATION DRIP");
+                } else {
+                    createParticle(world, pos, ParticleTypes.SNOWFLAKE);
+                }
+            }
+        } else {
+            GiantPotato.LOGGER.info("PRECIPITATION SURVUR");
             if (precipitation == Biome.Precipitation.RAIN) {
-                createParticle(world, pos, ParticleTypes.DRIPPING_WATER);
-            } else {
-                createParticle(world, pos, ParticleTypes.SNOWFLAKE);
+                GiantPotato.LOGGER.info("PRECIPITATION water");
+                placeSewerWater(state, world, pos);
             }
         }
     }
 
-    private static void createParticle(World world, BlockPos pos, Fluid fluid) {
+    private void placeSewerWater(BlockState state, Level world, BlockPos pos) {
+        BlockPos belowBottomDrain = findBottomDrain(world, pos);
+        if (belowBottomDrain == null) return;
+        BlockPos neg1 = belowBottomDrain.below(1);
+        BlockPos neg2 = belowBottomDrain.below(2);
+        if (world.getBlockState(neg1).is(BlockTags.AIR) && !world.getBlockState(neg2).is(BlockTags.AIR)) {
+            world.setBlockAndUpdate(neg1, ModFluids.SEWER_WATER_BLOCK.defaultBlockState());
+        }
+
+    }
+
+    private static void createParticle(Level world, BlockPos pos, Fluid fluid) {
         Random random = Random.from(RandomGenerator.getDefault());
-        Vec3d vec3d = new Vec3d(random.nextGaussian(), 0, random.nextGaussian());
+        Vec3 vec3d = new Vec3(random.nextGaussian(), 0, random.nextGaussian());
         double x = (double)pos.getX() + (double)0.5F + vec3d.x;
         double y = (float)pos.getY() + 0.94;
         double z = (double)pos.getZ() + (double)0.5F + vec3d.z;
         Fluid fluid2 = getDripFluid(world, fluid);
-        ParticleEffect particleEffect = fluid2.getDefaultState().getParticle();
+        ParticleOptions particleEffect = fluid2.defaultFluidState().getDripParticle();
         world.addParticle(particleEffect, x, y, z, (double)0.0F, (double)0.0F, (double)0.0F);
     }
 
-    private static void createParticle(World world, BlockPos pos, ParticleEffect effect) {
+    private static void createParticle(Level world, BlockPos pos, ParticleOptions effect) {
         Random random = Random.from(RandomGenerator.getDefault());
-        Vec3d vec3d = new Vec3d(random.nextGaussian(), 0, random.nextGaussian());
+        Vec3 vec3d = new Vec3(random.nextGaussian(), 0, random.nextGaussian());
         double x = (double)pos.getX() + (double)0.5F + vec3d.x;
         double y = (float)pos.getY() + 0.94;
         double z = (double)pos.getZ() + (double)0.5F + vec3d.z;
         world.addParticle(effect, x, y, z, (double)0.0F, (double)0.0F, (double)0.0F);
     }
 
-    private static Fluid getDripFluid(World world, Fluid fluid) {
-        if (fluid.matchesType(Fluids.EMPTY)) {
-            return world.getDimension().ultrawarm() ? Fluids.LAVA : Fluids.WATER;
+    private static Fluid getDripFluid(Level world, Fluid fluid) {
+        if (fluid.isSame(Fluids.EMPTY)) {
+            return world.dimensionType().ultraWarm() ? Fluids.LAVA : Fluids.WATER;
         } else {
             return fluid;
         }
     }
 
-    private boolean shouldRain(World world, Biome.Precipitation precipitation) {
+    private boolean shouldRain(Level world, Biome.Precipitation precipitation) {
         if (precipitation == Biome.Precipitation.RAIN) {
             return world.getRandom().nextFloat() < 0.25F;
         } else if (precipitation == Biome.Precipitation.SNOW) {
@@ -162,31 +185,31 @@ public class SewerDrainBlock extends Block {
 
 
     @Override
-    protected MapCodec<? extends Block> getCodec() {
+    protected MapCodec<? extends Block> codec() {
         return CODEC;
     }
 
     @Override
-    public @Nullable BlockState getPlacementState(ItemPlacementContext ctx) {
-        return getBlockState(ctx.getWorld(), ctx.getBlockPos());
+    public @Nullable BlockState getStateForPlacement(BlockPlaceContext ctx) {
+        return getBlockState(ctx.getLevel(), ctx.getClickedPos());
     }
 
     @Override
-    protected BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
+    protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor world, BlockPos pos, BlockPos neighborPos) {
         return getBlockState(world, pos);
     }
 
-    public static BlockState getBlockState(WorldAccess world, BlockPos pos) {
-        BlockState up = world.getBlockState(pos.up());
-        BlockState down = world.getBlockState(pos.down());
-        if (up.isOf(ModBlocks.SEWER_DRAIN)) {
-            return ModBlocks.SEWER_DRAIN.getDefaultState().with(DRAIN_SHAPE, SewerDrainShape.TUNNEL);
-        } else if (down.isOf(ModBlocks.SEWER_DRAIN)) {
-            return ModBlocks.SEWER_DRAIN.getDefaultState().with(DRAIN_SHAPE, SewerDrainShape.DRAIN_TUNNEL);
-        } else if (down.isIn(BlockTags.AIR)) {
-            return ModBlocks.SEWER_DRAIN.getDefaultState().with(DRAIN_SHAPE, SewerDrainShape.DRAIN_ONLY);
+    public static BlockState getBlockState(LevelAccessor world, BlockPos pos) {
+        BlockState up = world.getBlockState(pos.above());
+        BlockState down = world.getBlockState(pos.below());
+        if (up.is(ModBlocks.SEWER_DRAIN)) {
+            return ModBlocks.SEWER_DRAIN.defaultBlockState().setValue(DRAIN_SHAPE, SewerDrainShape.TUNNEL);
+        } else if (down.is(ModBlocks.SEWER_DRAIN)) {
+            return ModBlocks.SEWER_DRAIN.defaultBlockState().setValue(DRAIN_SHAPE, SewerDrainShape.DRAIN_TUNNEL);
+        } else if (down.is(BlockTags.AIR)) {
+            return ModBlocks.SEWER_DRAIN.defaultBlockState().setValue(DRAIN_SHAPE, SewerDrainShape.DRAIN_ONLY);
         } else {
-            return ModBlocks.SEWER_DRAIN.getDefaultState().with(DRAIN_SHAPE, SewerDrainShape.DRAIN_FALL);
+            return ModBlocks.SEWER_DRAIN.defaultBlockState().setValue(DRAIN_SHAPE, SewerDrainShape.DRAIN_FALL);
         }
     }
 }

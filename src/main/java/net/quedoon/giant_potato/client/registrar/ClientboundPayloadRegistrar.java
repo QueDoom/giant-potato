@@ -1,11 +1,9 @@
 package net.quedoon.giant_potato.client.registrar;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.EntityType;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.quedoon.giant_potato.block.entity.custom.CrusherWheelBlockEntity;
 import net.quedoon.giant_potato.client.packet.ClientboundSetCrusherWheelStatePayload;
 
@@ -19,7 +17,7 @@ public class ClientboundPayloadRegistrar {
 
     private static void registerSetCrusherWheelPayload() {
         ClientPlayNetworking.registerGlobalReceiver(ClientboundSetCrusherWheelStatePayload.ID, (payload, context) -> {
-            ClientWorld world = context.client().world;
+            ClientLevel world = context.client().level;
 
             if (world == null) {
                 return;

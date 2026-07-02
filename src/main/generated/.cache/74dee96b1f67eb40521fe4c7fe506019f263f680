@@ -1,2 +1,3 @@
-// 1.21.1	2026-06-27T01:13:31.994910908	Giant Potato/Block Loot Tables
+// 1.21.1	2026-07-02T18:31:15.163805876	Giant Potato/Block Loot Tables
 f7cc662d2958fd88852332bd403eec6a97c0bcd5 data/giant_potato/loot_table/blocks/mash_bowl.json
+25557446d985297b65afea1872fcb3a93168a684 data/giant_potato/loot_table/blocks/sewer_drain.json

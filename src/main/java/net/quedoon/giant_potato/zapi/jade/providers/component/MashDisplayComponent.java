@@ -1,8 +1,8 @@
 package net.quedoon.giant_potato.zapi.jade.providers.component;
 
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.quedoon.giant_potato.block.entity.custom.MashTankBlockEntity;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
@@ -20,12 +20,12 @@ public class MashDisplayComponent implements IBlockComponentProvider {
 //        if (blockEntity instanceof ImplementedInventory blockEntityWithImplementedInventory) {
 //            if (blockEntityWithImplementedInventory.getStack(0).)
         if (blockEntity instanceof MashTankBlockEntity mashTankBlockEntity)
-            iTooltip.add(Text.translatable("component.giant_potato.mash", nf.format(mashTankBlockEntity.fluidStorage.getAmount()), nf.format(mashTankBlockEntity.fluidStorage.getCapacity())));
+            iTooltip.add(Component.translatable("component.giant_potato.mash", nf.format(mashTankBlockEntity.fluidStorage.getAmount()), nf.format(mashTankBlockEntity.fluidStorage.getCapacity())));
 //        }
     }
 
     @Override
-    public Identifier getUid() {
+    public ResourceLocation getUid() {
         return null;
     }
 }

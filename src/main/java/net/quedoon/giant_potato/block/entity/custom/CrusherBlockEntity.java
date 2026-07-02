@@ -1,18 +1,17 @@
 package net.quedoon.giant_potato.block.entity.custom;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.recipe.RecipeEntry;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.state.property.Properties;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.quedoon.giant_potato.GiantPotato;
 import net.quedoon.giant_potato.block.ModBlocks;
 import net.quedoon.giant_potato.block.entity.ModBlockEntities;
@@ -31,13 +30,13 @@ public class CrusherBlockEntity extends AbstractMashMachineBlockEntity<CrusherRe
     }
 
     @Override
-    public Text getDisplayName() {
-        return Text.translatable("gui."+ GiantPotato.MOD_ID +".crusher");
+    public Component getDisplayName() {
+        return Component.translatable("gui."+ GiantPotato.MOD_ID +".crusher");
     }
 
     @Override
-    public @Nullable ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
-        return new CrusherScreenHandler(syncId, playerInventory, pos);
+    public @Nullable AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player player) {
+        return new CrusherScreenHandler(syncId, playerInventory, worldPosition);
     }
 
     // // // // // // // // //
@@ -52,8 +51,8 @@ public class CrusherBlockEntity extends AbstractMashMachineBlockEntity<CrusherRe
         return "crusher";
     }
 
-    public void tick(World world, BlockPos pos, BlockState state) {
-        if (!(world.isClient())) return;
+    public void tick(Level world, BlockPos pos, BlockState state) {
+        if (!(world.isClientSide())) return;
         GiantPotato.LOGGER.info("We are in the server!");
 
         int hasCrusherWheels = getCrusherWheels(world, pos, state);
@@ -68,7 +67,7 @@ public class CrusherBlockEntity extends AbstractMashMachineBlockEntity<CrusherRe
             setCrusherWheelState(world, pos, state, true);
             increaseCraftingProgress();
             this.active = true;
-            markDirty(world, pos, state);
+            setChanged(world, pos, state);
 
             if (hasCraftingFinished()) {
                 GiantPotato.LOGGER.info("Crafted");
@@ -80,7 +79,7 @@ public class CrusherBlockEntity extends AbstractMashMachineBlockEntity<CrusherRe
 
             setCrusherWheelState(world, pos, state, false);
             this.active = false;
-            markDirty(world, pos, state);
+            setChanged(world, pos, state);
         }
     }
 
@@ -104,9 +103,9 @@ public class CrusherBlockEntity extends AbstractMashMachineBlockEntity<CrusherRe
 //        return canInsertAmountIntoOutputSlot(output.getCount()) && canInsertItemIntoOutputSlot(output);
 //    }
 
-    protected Optional<RecipeEntry<CrusherRecipe>> getCurrentRecipe() {
-        return this.getWorld().getRecipeManager()
-                .getFirstMatch(ModRecipes.CRUSHER_TYPE, new CrusherRecipeInput(inventory.get(0)), this.getWorld());
+    protected Optional<RecipeHolder<CrusherRecipe>> getCurrentRecipe() {
+        return this.getLevel().getRecipeManager()
+                .getRecipeFor(ModRecipes.CRUSHER_TYPE, new CrusherRecipeInput(inventory.get(0)), this.getLevel());
     }
 
     @Override
@@ -115,8 +114,8 @@ public class CrusherBlockEntity extends AbstractMashMachineBlockEntity<CrusherRe
     }
 
 
-    private void setCrusherWheelState(World world, BlockPos pos, BlockState state, boolean value) {
-        Direction direction = state.get(Properties.HORIZONTAL_FACING);
+    private void setCrusherWheelState(Level world, BlockPos pos, BlockState state, boolean value) {
+        Direction direction = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
         BlockEntity north = world.getBlockEntity(pos.north(1));
         BlockEntity south = world.getBlockEntity(pos.south(1));
         BlockEntity east = world.getBlockEntity(pos.east(1));
@@ -135,19 +134,19 @@ public class CrusherBlockEntity extends AbstractMashMachineBlockEntity<CrusherRe
         }
     }
 
-    private int getCrusherWheels(World world, BlockPos pos, BlockState state) {
-        Direction facing = state.get(Properties.HORIZONTAL_FACING);
+    private int getCrusherWheels(Level world, BlockPos pos, BlockState state) {
+        Direction facing = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
         int wheels = 0;
         if (facing == Direction.NORTH || facing == Direction.SOUTH) {
-            if (world.getBlockState(pos.east(1)).isOf(ModBlocks.CRUSHER_WHEEL)
-                    && world.getBlockState(pos.east(1)).get(Properties.HORIZONTAL_FACING) == Direction.WEST) wheels += 1;
-            if (world.getBlockState(pos.west(1)).isOf(ModBlocks.CRUSHER_WHEEL)
-                    && world.getBlockState(pos.west(1)).get(Properties.HORIZONTAL_FACING) == Direction.EAST) wheels += 1;
+            if (world.getBlockState(pos.east(1)).is(ModBlocks.CRUSHER_WHEEL)
+                    && world.getBlockState(pos.east(1)).getValue(BlockStateProperties.HORIZONTAL_FACING) == Direction.WEST) wheels += 1;
+            if (world.getBlockState(pos.west(1)).is(ModBlocks.CRUSHER_WHEEL)
+                    && world.getBlockState(pos.west(1)).getValue(BlockStateProperties.HORIZONTAL_FACING) == Direction.EAST) wheels += 1;
         } else {
-            if (world.getBlockState(pos.north(1)).isOf(ModBlocks.CRUSHER_WHEEL)
-                    && world.getBlockState(pos.north(1)).get(Properties.HORIZONTAL_FACING) == Direction.SOUTH) wheels += 1;
-            if (world.getBlockState(pos.south(1)).isOf(ModBlocks.CRUSHER_WHEEL)
-                    && world.getBlockState(pos.south(1)).get(Properties.HORIZONTAL_FACING) == Direction.NORTH) wheels += 1;
+            if (world.getBlockState(pos.north(1)).is(ModBlocks.CRUSHER_WHEEL)
+                    && world.getBlockState(pos.north(1)).getValue(BlockStateProperties.HORIZONTAL_FACING) == Direction.SOUTH) wheels += 1;
+            if (world.getBlockState(pos.south(1)).is(ModBlocks.CRUSHER_WHEEL)
+                    && world.getBlockState(pos.south(1)).getValue(BlockStateProperties.HORIZONTAL_FACING) == Direction.NORTH) wheels += 1;
         }
         return wheels;
     }

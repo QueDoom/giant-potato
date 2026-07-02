@@ -5,16 +5,16 @@ import dev.emi.emi.api.render.EmiTexture;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
 import dev.emi.emi.api.widget.WidgetHolder;
-import net.minecraft.recipe.RecipeEntry;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.quedoon.giant_potato.recipe.CrusherRecipe;
 import net.quedoon.giant_potato.zapi.emi.GiantPotatoEmiPlugin;
 
 public class CrusherRecipeEmiRecipe extends BasicEmiRecipe {
 
-    public CrusherRecipeEmiRecipe(RecipeEntry<CrusherRecipe> recipe) {
+    public CrusherRecipeEmiRecipe(RecipeHolder<CrusherRecipe> recipe) {
         super(GiantPotatoEmiPlugin.CRUSHER_CATEGORY, recipe.id(), 76, 18);
         this.inputs.add(EmiIngredient.of(recipe.value().getIngredients().get(0)));
-        this.outputs.add(EmiStack.of(recipe.value().getResult(null)));
+        this.outputs.add(EmiStack.of(recipe.value().getResultItem(null)));
     }
 
     @Override

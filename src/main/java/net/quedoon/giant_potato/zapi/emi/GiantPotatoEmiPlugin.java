@@ -5,9 +5,9 @@ import dev.emi.emi.api.EmiRegistry;
 import dev.emi.emi.api.recipe.EmiRecipeCategory;
 import dev.emi.emi.api.render.EmiTexture;
 import dev.emi.emi.api.stack.EmiStack;
-import net.minecraft.recipe.RecipeEntry;
-import net.minecraft.recipe.RecipeManager;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeManager;
 import net.quedoon.giant_potato.GiantPotato;
 import net.quedoon.giant_potato.block.ModBlocks;
 import net.quedoon.giant_potato.recipe.CrusherRecipe;
@@ -15,10 +15,10 @@ import net.quedoon.giant_potato.recipe.ModRecipes;
 import net.quedoon.giant_potato.zapi.emi.recipes.CrusherRecipeEmiRecipe;
 
 public class GiantPotatoEmiPlugin implements EmiPlugin {
-    public static final Identifier CRUSHER_SPRITES = Identifier.of(GiantPotato.MOD_ID, "textures/gui/crusher/crusher_emi");
+    public static final ResourceLocation CRUSHER_SPRITES = ResourceLocation.fromNamespaceAndPath(GiantPotato.MOD_ID, "textures/gui/crusher/crusher_emi");
     public static final EmiStack CRUSHER_WORKSTATION = EmiStack.of(ModBlocks.CRUSHER);
     public static final EmiRecipeCategory CRUSHER_CATEGORY =
-            new EmiRecipeCategory(Identifier.of(GiantPotato.MOD_ID, "crusher_workstation"),
+            new EmiRecipeCategory(ResourceLocation.fromNamespaceAndPath(GiantPotato.MOD_ID, "crusher_workstation"),
                     CRUSHER_WORKSTATION, new EmiTexture(CRUSHER_SPRITES, 0, 0, 82, 32));
 
 
@@ -30,7 +30,7 @@ public class GiantPotatoEmiPlugin implements EmiPlugin {
 
         RecipeManager manager = emiRegistry.getRecipeManager();
 
-        for (RecipeEntry<CrusherRecipe> recipe : manager.listAllOfType(ModRecipes.CRUSHER_TYPE)) {
+        for (RecipeHolder<CrusherRecipe> recipe : manager.getAllRecipesFor(ModRecipes.CRUSHER_TYPE)) {
             emiRegistry.addRecipe(new CrusherRecipeEmiRecipe(recipe));
         }
     }

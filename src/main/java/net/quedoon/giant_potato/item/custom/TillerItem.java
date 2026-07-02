@@ -1,23 +1,23 @@
 package net.quedoon.giant_potato.item.custom;
 
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 public class TillerItem extends Item {
-    public TillerItem(Settings settings) {
+    public TillerItem(Properties settings) {
         super(settings);
     }
 
     @Override
-    public boolean hasRecipeRemainder() {
+    public boolean hasCraftingRemainingItem() {
         return true;
     }
 
     @Override
     public ItemStack getRecipeRemainder(ItemStack stack) {
-        if (stack.getDamage() < stack.getMaxDamage() - 1) {
+        if (stack.getDamageValue() < stack.getMaxDamage() - 1) {
             ItemStack moreDamaged = stack.copy();
-            moreDamaged.setDamage(stack.getDamage() + 1);
+            moreDamaged.setDamageValue(stack.getDamageValue() + 1);
             return moreDamaged;
         }
 

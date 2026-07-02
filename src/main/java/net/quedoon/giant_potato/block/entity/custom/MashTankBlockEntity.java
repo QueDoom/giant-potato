@@ -5,26 +5,26 @@ import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleVariantStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.Inventories;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.listener.ClientPlayPacketListener;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.screen.PropertyDelegate;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.ContainerHelper;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.quedoon.giant_potato.block.entity.util.ImplementedInventory;
 import net.quedoon.giant_potato.block.entity.ModBlockEntities;
 import net.quedoon.giant_potato.block.entity.fluid.FluidUtils;
@@ -36,13 +36,13 @@ import net.quedoon.giant_potato.util.ModTags;
 import org.jetbrains.annotations.Nullable;
 
 public class MashTankBlockEntity extends BlockEntity implements ExtendedScreenHandlerFactory<BlockPos>, ImplementedInventory, ImplementedMashTank {
-    private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(2, ItemStack.EMPTY);
+    private final NonNullList<ItemStack> inventory = NonNullList.withSize(2, ItemStack.EMPTY);
 
-    protected final PropertyDelegate propertyDelegate;
+    protected final ContainerData propertyDelegate;
 
     public MashTankBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.MASH_TANK_BE, pos, state);
-        this.propertyDelegate = new PropertyDelegate() {
+        this.propertyDelegate = new ContainerData() {
             @Override
             public int get(int index) {
                 return (int) switch (index) {
@@ -57,7 +57,7 @@ public class MashTankBlockEntity extends BlockEntity implements ExtendedScreenHa
             }
 
             @Override
-            public int size() {
+            public int getCount() {
                 return 2;
             }
         };
@@ -73,26 +73,26 @@ public class MashTankBlockEntity extends BlockEntity implements ExtendedScreenHa
     }
 
     @Override
-    public BlockPos getScreenOpeningData(ServerPlayerEntity player) {
-        return this.pos;
+    public BlockPos getScreenOpeningData(ServerPlayer player) {
+        return this.worldPosition;
     }
 
     @Override
-    public Text getDisplayName() {
-        return Text.literal("Mash Tank");
+    public Component getDisplayName() {
+        return Component.literal("Mash Tank");
     }
 
     @Override
-    public @Nullable ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
+    public @Nullable AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player player) {
         return new MashTankScreenHandler(syncId, playerInventory, this, propertyDelegate);
     }
 
     @Override
-    public DefaultedList<ItemStack> getItems() {
+    public NonNullList<ItemStack> getItems() {
         return inventory;
     }
 
-    public void tick(World world1, BlockPos pos, BlockState state1) {
+    public void tick(Level world1, BlockPos pos, BlockState state1) {
         if (hasFluidStackInFirstSlot()) {
             if (this.fluidStorage.getAmount() < this.fluidStorage.getCapacity() )
                 transferFluidToTank();
@@ -104,7 +104,7 @@ public class MashTankBlockEntity extends BlockEntity implements ExtendedScreenHa
     }
 
     private void transferFluidFromTankToHandler() {
-        if(inventory.get(1).isOf(Items.BUCKET)) {
+        if(inventory.get(1).is(Items.BUCKET)) {
             try(Transaction transaction = Transaction.openOuter()) {
                 FluidVariant variant = fluidStorage.variant;
                 this.fluidStorage.extract(variant, 1000, transaction);
@@ -127,7 +127,7 @@ public class MashTankBlockEntity extends BlockEntity implements ExtendedScreenHa
     }
 
     private void transferFluidToTank() {
-       if(inventory.get(0).isIn(ModTags.Items.MASH_BUCKETS) && (fluidStorage.variant.isOf(ModFluids.MASH) || fluidStorage.isResourceBlank())) {
+       if(inventory.get(0).is(ModTags.Items.MASH_BUCKETS) && (fluidStorage.variant.isOf(ModFluids.MASH) || fluidStorage.isResourceBlank())) {
             try (Transaction transaction = Transaction.openOuter()) {
                 this.fluidStorage.insert(FluidVariant.of(ModFluids.MASH), 1000, transaction);
                 setFluidStorages();
@@ -135,7 +135,7 @@ public class MashTankBlockEntity extends BlockEntity implements ExtendedScreenHa
                 transaction.commit();
             }
         }
-       if(inventory.get(0).isIn(ModTags.Items.POISONOUS_MASH_BUCKETS) && (fluidStorage.variant.isOf(ModFluids.POISONOUS_MASH) || fluidStorage.isResourceBlank())) {
+       if(inventory.get(0).is(ModTags.Items.POISONOUS_MASH_BUCKETS) && (fluidStorage.variant.isOf(ModFluids.POISONOUS_MASH) || fluidStorage.isResourceBlank())) {
             try (Transaction transaction = Transaction.openOuter()) {
                 this.fluidStorage.insert(FluidVariant.of(ModFluids.POISONOUS_MASH), 1000, transaction);
                 setFluidStorages();
@@ -156,45 +156,45 @@ public class MashTankBlockEntity extends BlockEntity implements ExtendedScreenHa
         if (this.fluidStorageHalf.amount > 16000) {
             this.fluidStorageHalf.amount = 16000;
         }
-        markDirty();
+        setChanged();
     }
 
 
     private void setInputSlotToEmptyContainer() {
         Item item = this.inventory.get(0).getItem();
         if (item instanceof EmptyableItemContainer itemContainer) {
-            this.inventory.set(0, itemContainer.getEmptyItem().getDefaultStack());
+            this.inventory.set(0, itemContainer.getEmptyItem().getDefaultInstance());
         }
     }
 
 
     private boolean hasFluidStackInFirstSlot() {
-        return !inventory.get(0).isEmpty() && inventory.get(0).isIn(ModTags.Items.MASH_BUCKETS) || inventory.get(0).isIn(ModTags.Items.POISONOUS_MASH_BUCKETS);
+        return !inventory.get(0).isEmpty() && inventory.get(0).is(ModTags.Items.MASH_BUCKETS) || inventory.get(0).is(ModTags.Items.POISONOUS_MASH_BUCKETS);
     }
 
     @Override
-    protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
-        super.writeNbt(nbt, registryLookup);
-        Inventories.writeNbt(nbt, inventory, registryLookup);
+    protected void saveAdditional(CompoundTag nbt, HolderLookup.Provider registryLookup) {
+        super.saveAdditional(nbt, registryLookup);
+        ContainerHelper.saveAllItems(nbt, inventory, registryLookup);
         SingleVariantStorage.writeNbt(this.fluidStorage, FluidVariant.CODEC, nbt, registryLookup);
     }
 
     @Override
-    protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
-        super.readNbt(nbt, registryLookup);
-        Inventories.readNbt(nbt, inventory, registryLookup);
+    protected void loadAdditional(CompoundTag nbt, HolderLookup.Provider registryLookup) {
+        super.loadAdditional(nbt, registryLookup);
+        ContainerHelper.loadAllItems(nbt, inventory, registryLookup);
         SingleVariantStorage.readNbt(fluidStorage, FluidVariant.CODEC, FluidVariant::blank, nbt, registryLookup);
     }
 
     @Nullable
     @Override
-    public Packet<ClientPlayPacketListener> toUpdatePacket() {
-        return BlockEntityUpdateS2CPacket.create(this);
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @Override
-    public NbtCompound toInitialChunkDataNbt(RegistryWrapper.WrapperLookup registryLookup) {
-        return createNbt(registryLookup);
+    public CompoundTag getUpdateTag(HolderLookup.Provider registryLookup) {
+        return saveWithoutMetadata(registryLookup);
     }
 
     public FluidVariant getFluid() {

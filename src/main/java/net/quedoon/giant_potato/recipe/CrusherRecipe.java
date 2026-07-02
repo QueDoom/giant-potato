@@ -2,46 +2,46 @@ package net.quedoon.giant_potato.recipe;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.recipe.Recipe;
-import net.minecraft.recipe.RecipeSerializer;
-import net.minecraft.recipe.RecipeType;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.world.World;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.NonNullList;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.Level;
 
 public record CrusherRecipe(Ingredient inputItem, ItemStack output) implements Recipe<CrusherRecipeInput> {
     @Override
-    public DefaultedList<Ingredient> getIngredients() {
-        DefaultedList<Ingredient> list = DefaultedList.of();
+    public NonNullList<Ingredient> getIngredients() {
+        NonNullList<Ingredient> list = NonNullList.create();
         list.add(this.inputItem);
         return list;
     }
 
     @Override
-    public boolean matches(CrusherRecipeInput input, World world) {
-        if (world.isClient()) {
+    public boolean matches(CrusherRecipeInput input, Level world) {
+        if (world.isClientSide()) {
             return false;
         }
 
-        return inputItem.test(input.getStackInSlot(0));
+        return inputItem.test(input.getItem(0));
     }
 
     @Override
-    public ItemStack craft(CrusherRecipeInput input, RegistryWrapper.WrapperLookup lookup) {
+    public ItemStack assemble(CrusherRecipeInput recipeInput, HolderLookup.Provider provider) {
         return output.copy();
     }
 
     @Override
-    public boolean fits(int width, int height) {
+    public boolean canCraftInDimensions(int width, int height) {
         return true;
     }
 
     @Override
-    public ItemStack getResult(RegistryWrapper.WrapperLookup registriesLookup) {
+    public ItemStack getResultItem(HolderLookup.Provider registriesLookup) {
         return output;
     }
 
@@ -57,13 +57,13 @@ public record CrusherRecipe(Ingredient inputItem, ItemStack output) implements R
 
     public static class Serializer implements RecipeSerializer<CrusherRecipe> {
         public static final MapCodec<CrusherRecipe> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
-                Ingredient.DISALLOW_EMPTY_CODEC.fieldOf("ingredient").forGetter(CrusherRecipe::inputItem),
+                Ingredient.CODEC_NONEMPTY.fieldOf("ingredient").forGetter(CrusherRecipe::inputItem),
                 ItemStack.CODEC.fieldOf("result").forGetter(CrusherRecipe::output)
         ).apply(inst, CrusherRecipe::new));
-        public static final PacketCodec<RegistryByteBuf, CrusherRecipe> STREAM_CODEC =
-                PacketCodec.tuple(
-                        Ingredient.PACKET_CODEC, CrusherRecipe::inputItem,
-                        ItemStack.PACKET_CODEC, CrusherRecipe::output,
+        public static final StreamCodec<RegistryFriendlyByteBuf, CrusherRecipe> STREAM_CODEC =
+                StreamCodec.composite(
+                        Ingredient.CONTENTS_STREAM_CODEC, CrusherRecipe::inputItem,
+                        ItemStack.STREAM_CODEC, CrusherRecipe::output,
                         CrusherRecipe::new);
 
         @Override
@@ -72,7 +72,7 @@ public record CrusherRecipe(Ingredient inputItem, ItemStack output) implements R
         }
 
         @Override
-        public PacketCodec<RegistryByteBuf, CrusherRecipe> packetCodec() {
+        public StreamCodec<RegistryFriendlyByteBuf, CrusherRecipe> streamCodec() {
             return STREAM_CODEC;
         }
     }

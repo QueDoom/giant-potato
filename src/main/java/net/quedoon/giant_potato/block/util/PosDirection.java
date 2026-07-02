@@ -1,9 +1,9 @@
 package net.quedoon.giant_potato.block.util;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class PosDirection {
     private final BlockPos POS;
@@ -19,7 +19,7 @@ public class PosDirection {
         return POS;
     }
 
-    public BlockState getOrigin(World world) {
+    public BlockState getOrigin(Level world) {
         return world.getBlockState(POS);
     }
 
@@ -27,8 +27,8 @@ public class PosDirection {
         return DIRECTION;
     }
 
-    public BlockState getState(World world) {
-        return world.getBlockState(POS.offset(DIRECTION));
+    public BlockState getState(Level world) {
+        return world.getBlockState(POS.relative(DIRECTION));
     }
 
 }

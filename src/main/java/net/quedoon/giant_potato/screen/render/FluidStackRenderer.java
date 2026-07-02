@@ -7,18 +7,17 @@ import net.fabricmc.fabric.api.transfer.v1.client.fluid.FluidVariantRendering;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleVariantStorage;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.texture.Sprite;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.Item;
-import net.minecraft.registry.Registries;
-import net.minecraft.screen.PlayerScreenHandler;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
+import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.material.Fluids;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,13 +66,13 @@ public class FluidStackRenderer {
     * METHOD FROM https://github.com/TechReborn/TechReborn
     * UNDER MIT LICENSE: https://github.com/TechReborn/TechReborn/blob/1.19/LICENSE.md
     */
-    public void drawFluid(DrawContext context, SingleVariantStorage<FluidVariant> fluidStorage, int x, int y, int width, int height, long maxCapacity) {
+    public void drawFluid(GuiGraphics context, SingleVariantStorage<FluidVariant> fluidStorage, int x, int y, int width, int height, long maxCapacity) {
         if (fluidStorage.variant.getFluid() == Fluids.EMPTY) {
             return;
         }
-        RenderSystem.setShaderTexture(0, PlayerScreenHandler.BLOCK_ATLAS_TEXTURE);
+        RenderSystem.setShaderTexture(0, InventoryMenu.BLOCK_ATLAS);
         y += height;
-        final Sprite sprite = FluidVariantRendering.getSprite(fluidStorage.variant);
+        final TextureAtlasSprite sprite = FluidVariantRendering.getSprite(fluidStorage.variant);
         int color = FluidVariantRendering.getColor(fluidStorage.variant);
 
         final int drawHeight = (int) Math.ceil((fluidStorage.amount / (maxCapacity * 1F) * height));
@@ -86,7 +85,7 @@ public class FluidStackRenderer {
         while (offsetHeight != 0) {
             final int curHeight = Math.min(offsetHeight, iconHeight);
 
-            context.drawSprite(x, y - offsetHeight, 0, width, curHeight, sprite);
+            context.blit(x, y - offsetHeight, 0, width, curHeight, sprite);
             offsetHeight -= curHeight;
             iteration++;
             if (iteration > 50) {
@@ -96,26 +95,26 @@ public class FluidStackRenderer {
         RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
 
         RenderSystem.setShaderTexture(0, FluidRenderHandlerRegistry.INSTANCE.get(fluidStorage.variant.getFluid())
-                .getFluidSprites(MinecraftClient.getInstance().world, null, fluidStorage.variant.getFluid().getDefaultState())[0].getAtlasId());
+                .getFluidSprites(Minecraft.getInstance().level, null, fluidStorage.variant.getFluid().defaultFluidState())[0].atlasLocation());
     }
 
-    public List<Text> getTooltip(SingleVariantStorage<FluidVariant> fluidStorage, Item.TooltipContext tooltipFlag) {
-        List<Text> tooltip = new ArrayList<>();
+    public List<Component> getTooltip(SingleVariantStorage<FluidVariant> fluidStorage, Item.TooltipContext tooltipFlag) {
+        List<Component> tooltip = new ArrayList<>();
         FluidVariant fluidType = fluidStorage.variant;
         if (fluidType == null) {
             return tooltip;
         }
 
-        MutableText displayName = Text.translatable("block." + Registries.FLUID.getId(fluidStorage.variant.getFluid()).toTranslationKey());
+        MutableComponent displayName = Component.translatable("block." + BuiltInRegistries.FLUID.getKey(fluidStorage.variant.getFluid()).toLanguageKey());
         tooltip.add(displayName);
 
         long amount = fluidStorage.amount;
         if (tooltipMode == TooltipMode.SHOW_AMOUNT_AND_CAPACITY) {
-            MutableText amountString = Text.translatable("giant_potato.tooltip.liquid.amount.with.capacity", nf.format(amount), nf.format(capacityMb));
-            tooltip.add(amountString.fillStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY)));
+            MutableComponent amountString = Component.translatable("giant_potato.tooltip.liquid.amount.with.capacity", nf.format(amount), nf.format(capacityMb));
+            tooltip.add(amountString.withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_GRAY)));
         } else if (tooltipMode == TooltipMode.SHOW_AMOUNT) {
-            MutableText amountString = Text.translatable("giant_potato.tooltip.liquid.amount", nf.format(amount));
-            tooltip.add(amountString.fillStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY)));
+            MutableComponent amountString = Component.translatable("giant_potato.tooltip.liquid.amount", nf.format(amount));
+            tooltip.add(amountString.withStyle(Style.EMPTY.withColor(ChatFormatting.DARK_GRAY)));
         }
 
         return tooltip;

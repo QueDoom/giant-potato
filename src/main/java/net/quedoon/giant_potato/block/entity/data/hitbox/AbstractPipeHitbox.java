@@ -1,12 +1,12 @@
 package net.quedoon.giant_potato.block.entity.data.hitbox;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.quedoon.giant_potato.GiantPotato;
 import net.quedoon.giant_potato.block.entity.util.block_entity.pipe.AbstractPipeBlockEntity;
 import net.quedoon.giant_potato.block.entity.util.AbstractInteractionHitbox;
@@ -19,19 +19,19 @@ public class AbstractPipeHitbox extends AbstractInteractionHitbox {
 private final AbstractPipeBlockEntity blockEntity;
     private final Direction side;
 
-    public AbstractPipeHitbox(AbstractPipeBlockEntity blockEntity, Box box, Vector3f debugColor, Direction side) {
+    public AbstractPipeHitbox(AbstractPipeBlockEntity blockEntity, AABB box, Vector3f debugColor, Direction side) {
         super(box, debugColor);
         this.blockEntity = blockEntity;
         this.side = side;
     }
 
     @Override
-    public Identifier getIdentifier() {
-        return Identifier.of(GiantPotato.MOD_ID, "abstract_pipe_" + GetStringFromDirection.minecraftDir(side));
+    public ResourceLocation getIdentifier() {
+        return ResourceLocation.fromNamespaceAndPath(GiantPotato.MOD_ID, "abstract_pipe_" + GetStringFromDirection.minecraftDir(side));
     }
 
-    public static Identifier getIdentifier(Direction dir) {
-        return Identifier.of(GiantPotato.MOD_ID, "abstract_pipe_" + GetStringFromDirection.minecraftDir(dir));
+    public static ResourceLocation getIdentifier(Direction dir) {
+        return ResourceLocation.fromNamespaceAndPath(GiantPotato.MOD_ID, "abstract_pipe_" + GetStringFromDirection.minecraftDir(dir));
     }
 
     public AbstractPipeBlockEntity getBlockEntity() {
@@ -39,8 +39,8 @@ private final AbstractPipeBlockEntity blockEntity;
     }
 
     @Override
-    public ActionResult interact(AbstractPipeBlockEntity blockEntity, Vec3d actualPos, PlayerEntity player, Hand hand) {
+    public InteractionResult interact(AbstractPipeBlockEntity blockEntity, Vec3 actualPos, Player player, InteractionHand hand) {
         blockEntity.toggleSideFromHitbox(blockEntity, actualPos, player, hand, side);
-        return ActionResult.PASS;
+        return InteractionResult.PASS;
     }
 }

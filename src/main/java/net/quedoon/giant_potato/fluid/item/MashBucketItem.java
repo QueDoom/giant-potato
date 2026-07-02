@@ -1,17 +1,16 @@
 package net.quedoon.giant_potato.fluid.item;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.item.BucketItem;
-import net.minecraft.registry.tag.FluidTags;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
-import net.minecraft.world.event.GameEvent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BucketItem;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.phys.BlockHitResult;
 import net.quedoon.giant_potato.fluid.util.EmptyableItemContainer;
 import net.quedoon.giant_potato.util.ModTags;
 import org.jetbrains.annotations.Nullable;
@@ -19,21 +18,21 @@ import org.jetbrains.annotations.Nullable;
 public class MashBucketItem extends BucketItem implements EmptyableItemContainer {
     private final Fluid fluid;
 
-    public MashBucketItem(Fluid fluid, Settings settings) {
+    public MashBucketItem(Fluid fluid, Properties settings) {
         super(fluid, settings);
         this.fluid = fluid;
     }
 
     @Override
-    protected void playEmptyingSound(@Nullable PlayerEntity player, WorldAccess world, BlockPos pos) {
-        SoundEvent soundEvent = this.fluid.isIn(ModTags.Fluid.MASH_FLUIDS) ? SoundEvents.BLOCK_HONEY_BLOCK_BREAK : SoundEvents.ITEM_BUCKET_EMPTY;
-        world.playSound(player, pos, soundEvent, SoundCategory.BLOCKS, 1.0F, 1.0F);
-        world.emitGameEvent(player, GameEvent.FLUID_PLACE, pos);
+    protected void playEmptySound(@Nullable Player player, LevelAccessor world, BlockPos pos) {
+        SoundEvent soundEvent = this.fluid.is(ModTags.Fluid.MASH_FLUIDS) ? SoundEvents.HONEY_BLOCK_BREAK : SoundEvents.BUCKET_EMPTY;
+        world.playSound(player, pos, soundEvent, SoundSource.BLOCKS, 1.0F, 1.0F);
+        world.gameEvent(player, GameEvent.FLUID_PLACE, pos);
     }
 
     @Override
-    public boolean placeFluid(@Nullable PlayerEntity player, World world, BlockPos pos, @Nullable BlockHitResult hitResult) {
-        return super.placeFluid(player, world, pos, hitResult);
+    public boolean emptyContents(@Nullable Player player, Level world, BlockPos pos, @Nullable BlockHitResult hitResult) {
+        return super.emptyContents(player, world, pos, hitResult);
     }
 
 

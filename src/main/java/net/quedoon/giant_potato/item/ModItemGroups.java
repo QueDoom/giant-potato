@@ -1,12 +1,12 @@
 package net.quedoon.giant_potato.item;
 
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
 import net.quedoon.giant_potato.GiantPotato;
 import net.quedoon.giant_potato.block.ModBlocks;
 import net.quedoon.giant_potato.fluid.ModFluids;
@@ -14,31 +14,33 @@ import net.quedoon.giant_potato.fluid.ModFluids;
 public class ModItemGroups {
 
 
-    public static final ItemGroup GIANT_POTATO_GROUP = Registry.register(Registries.ITEM_GROUP,
-            Identifier.of(net.quedoon.giant_potato.GiantPotato.MOD_ID, "giant_potato"),
-            FabricItemGroup.builder().displayName(Text.translatable("itemGroup.giant_potato"))
-                    .icon(() -> new ItemStack(ModItems.TILLER)).entries((displayContext, entries) -> {
-                        entries.add(ModBlocks.MASH_BOWL);
-                        entries.add(ModBlocks.MASH_PIPE);
-                        entries.add(ModItems.WRENCH);
-                        entries.add(ModBlocks.MASH_TANK);
-                        entries.add(ModFluids.MASH_BUCKET);
-                        entries.add(ModFluids.POISONOUS_MASH_BUCKET);
+    public static final CreativeModeTab GIANT_POTATO_GROUP = Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB,
+            ResourceLocation.fromNamespaceAndPath(net.quedoon.giant_potato.GiantPotato.MOD_ID, "giant_potato"),
+            FabricItemGroup.builder().title(Component.translatable("itemGroup.giant_potato"))
+                    .icon(() -> new ItemStack(ModItems.TILLER)).displayItems((displayContext, entries) -> {
+                        entries.accept(ModBlocks.MASH_BOWL);
+                        entries.accept(ModBlocks.MASH_PIPE);
+                        entries.accept(ModItems.WRENCH);
+                        entries.accept(ModBlocks.MASH_TANK);
+                        entries.accept(ModFluids.MASH_BUCKET);
+                        entries.accept(ModFluids.POISONOUS_MASH_BUCKET);
 
-                        entries.add(ModItems.TILLER);
-                        entries.add(ModItems.FERTILIZER_DIRT);
-                        entries.add(ModBlocks.SMOOTH_POTATOES);
+                        entries.accept(ModItems.TILLER);
+                        entries.accept(ModItems.FERTILIZER_DIRT);
+                        entries.accept(ModBlocks.SMOOTH_POTATOES);
 
-                        entries.add(ModItems.FOUNDRY);
-                        entries.add(ModItems.CHARRED_POTATO);
-                        entries.add(ModItems.BIOSTEEL_ALLOY);
-                        entries.add(ModItems.POTATO_ALLOY);
-                        entries.add(ModItems.POISONOUS_POTATO_ALLOY);
+                        entries.accept(ModItems.FOUNDRY);
+                        entries.accept(ModItems.CHARRED_POTATO);
+                        entries.accept(ModItems.BIOSTEEL_ALLOY);
+                        entries.accept(ModItems.POTATO_ALLOY);
+                        entries.accept(ModItems.POISONOUS_POTATO_ALLOY);
 
-                        entries.add(ModBlocks.CRUSHER);
-                        entries.add(ModItems.CRUSHER_WHEEL);
+                        entries.accept(ModBlocks.CRUSHER);
+                        entries.accept(ModItems.CRUSHER_WHEEL);
 
-                        entries.add(ModBlocks.SEWER_DRAIN);
+                        entries.accept(ModBlocks.SEWER_DRAIN);
+                        entries.accept(ModBlocks.SEWER);
+                        entries.accept(ModFluids.SEWER_WATER_BUCKET);
 
 
 

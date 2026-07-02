@@ -3,14 +3,14 @@ package net.quedoon.giant_potato.block.entity.util.block_entity.mashines;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleVariantStorage;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.inventory.Inventories;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.recipe.Recipe;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.screen.PropertyDelegate;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.ContainerHelper;
+import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 import net.quedoon.giant_potato.block.entity.util.ImplementedMashTank;
 import net.quedoon.giant_potato.fluid.ModFluids;
 
@@ -18,12 +18,12 @@ public abstract class AbstractMashMachineBlockEntity<T extends Recipe<?>> extend
 
     private int MAX_MASH;
 
-    protected final PropertyDelegate propertyDelegate;
+    protected final ContainerData propertyDelegate;
 
     public AbstractMashMachineBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, int inventorySize, int maxMash) {
         super(type, pos, state, inventorySize);
         this.MAX_MASH = maxMash;
-        this.propertyDelegate = new PropertyDelegate() {
+        this.propertyDelegate = new ContainerData() {
             @Override
             public int get(int index) {
                 return (int) switch (index) {
@@ -47,7 +47,7 @@ public abstract class AbstractMashMachineBlockEntity<T extends Recipe<?>> extend
             }
 
             @Override
-            public int size() {
+            public int getCount() {
                 return 4;
             }
         };
@@ -62,15 +62,15 @@ public abstract class AbstractMashMachineBlockEntity<T extends Recipe<?>> extend
     public final SingleVariantStorage<FluidVariant> fluidStorageHalf = ImplementedMashTank.of(MAX_MASH, this);
 
     @Override
-    public NbtCompound toInitialChunkDataNbt(RegistryWrapper.WrapperLookup registryLookup) {
-        return createNbt(registryLookup);
+    public CompoundTag getUpdateTag(HolderLookup.Provider registryLookup) {
+        return saveWithoutMetadata(registryLookup);
     }
 
     @Override
-    protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
+    protected void saveAdditional(CompoundTag nbt, HolderLookup.Provider registryLookup) {
         String name = getName();
-        super.writeNbt(nbt, registryLookup);
-        Inventories.writeNbt(nbt, inventory, registryLookup);
+        super.saveAdditional(nbt, registryLookup);
+        ContainerHelper.saveAllItems(nbt, inventory, registryLookup);
         nbt.putInt("giant_potato." + name + ".progress", progress);
         nbt.putInt("giant_potato." + name + ".max_progress", maxProgress);
         nbt.putBoolean("giant_potato." + name + ".active", active);
@@ -78,10 +78,10 @@ public abstract class AbstractMashMachineBlockEntity<T extends Recipe<?>> extend
     }
 
     @Override
-    protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
+    protected void loadAdditional(CompoundTag nbt, HolderLookup.Provider registryLookup) {
         String name = getName();
-        super.readNbt(nbt, registryLookup);
-        Inventories.readNbt(nbt, inventory, registryLookup);
+        super.loadAdditional(nbt, registryLookup);
+        ContainerHelper.loadAllItems(nbt, inventory, registryLookup);
         progress = nbt.getInt("giant_potato." + name + ".progress");
         maxProgress = nbt.getInt("giant_potato." + name + ".max_progress");
         active = nbt.getBoolean("giant_potato." + name + ".active");
