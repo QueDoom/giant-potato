@@ -7,7 +7,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class ModBlockHitboxes {
+public class  ModBlockHitboxes {
     public static VoxelShape getMashBowlHitbox() {
         return Shapes.or(
                   Block.box(0, 0, 0, 16, 8, 16)//,
