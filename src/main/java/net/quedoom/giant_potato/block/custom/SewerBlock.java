@@ -15,6 +15,7 @@ import net.quedoom.giant_potato.block.ModBlocks;
 import net.quedoom.giant_potato.block.util.ModProperties;
 import net.quedoom.giant_potato.block.util.PosDirection;
 import net.quedoom.giant_potato.block.util.SewerStates;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class SewerBlock extends Block {
@@ -35,14 +36,21 @@ public class SewerBlock extends Block {
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext ctx) {
         BlockPos pos = ctx.getClickedPos();
         Level world = ctx.getLevel();
-        if (!world.isClientSide()) return this.defaultBlockState();
-        BlockState facingState = this.defaultBlockState().setValue(FACING, ctx.getHorizontalDirection());
-        return facingState.setValue(SEWER_STATE, getState(facingState, world, pos));
+        return this.defaultBlockState().setValue(SEWER_STATE, getState(this.defaultBlockState(), world, pos)).setValue(FACING, ctx.getHorizontalDirection());
     }
 
     @Override
-    protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor world, BlockPos pos, BlockPos neighborPos) {
-        return neighborState.is(ModBlocks.SEWER) ? state.setValue(SEWER_STATE, getState(state, world, pos)) : state;
+    protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+        level.setBlock(pos, getBlockState(state, level, pos), 1);
+    }
+
+    private BlockState getBlockState(BlockState state, LevelAccessor world, BlockPos pos) {
+        return state.setValue(SEWER_STATE, getState(state, world, pos));
+    }
+
+    @Override
+    protected @NotNull BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor world, BlockPos pos, BlockPos neighborPos) {
+        return getBlockState(state, world, pos);
     }
 
     private SewerStates getState(BlockState state, LevelAccessor world, BlockPos pos) {
@@ -59,13 +67,15 @@ public class SewerBlock extends Block {
         if (!hasSewerShape(state, facing, (Level) world, pos)) return SewerStates.NO_SHAPE;
 
         SewerStates sewerState = SewerStates.DO_NOT_CONNECT;
-        if (backState.is(ModBlocks.SEWER) && backState.getValue(FACING) == facing && backState.is(ModBlocks.SEWER)) {
+        if (backState.is(ModBlocks.SEWER) && backState.getValue(FACING) == facing) {
             if (isConnected((Level) world, forward)) {
                 sewerState = SewerStates.CONNECT_FORWARD;
             } else if (isConnected((Level) world, left)) {
                 sewerState = SewerStates.CONNECT_LEFT;
             } else if (isConnected((Level) world, right)) {
                 sewerState = SewerStates.CONNECT_RIGHT;
+            } else {
+                sewerState = SewerStates.BACKWARDS_ONLY;
             }
         } else {
             if (isConnected((Level) world, forward)) {

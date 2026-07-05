@@ -10,6 +10,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.material.PushReaction;
 import net.quedoom.giant_potato.GiantPotato;
 import net.quedoom.giant_potato.block.custom.*;
 
@@ -40,7 +41,7 @@ public class ModBlocks {
                     .strength(4.0F).explosionResistance(3.0F).requiresCorrectToolForDrops().noOcclusion()));
     public static final Block SEWER = registerBlock("sewer",
             new SewerBlock(BlockBehaviour.Properties.of().sound(SoundType.METAL)
-                    .strength(4.0F).explosionResistance(3.0F).requiresCorrectToolForDrops()));
+                    .strength(4.0F).explosionResistance(3.0F).requiresCorrectToolForDrops().pushReaction(PushReaction.BLOCK)));
 
     // Machines
     public static final Block FOUNDRY = registerBlockWithoutItem("foundry",
