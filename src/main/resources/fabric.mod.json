@@ -9,10 +9,17 @@
 	],
 	"contact": {
 		"homepage": "https://quedoom.com/",
-		"sources": "https://github.com/QueDoom/gaint-potato"
+		"sources": "https://github.com/QueDoom/giant-potato"
 	},
 	"license": "MIT",
 	"icon": "assets/giant_potato/icon.png",
+	"custom": {
+		"modmenu": {
+			"links": {
+				"modmenu.discord": "https://discord.gg/xkdXpApT5r"
+			}
+		}
+	},
 	"environment": "*",
 	"entrypoints": {
 		"main": [
@@ -38,6 +45,13 @@
 		"fabricloader": ">=0.18.4",
 		"minecraft": "~1.21.1",
 		"java": ">=21",
-		"fabric-api": "*"
+		"fabric-api": "*",
+		"geckolib": ">=4.9.2",
+		"fluidlib": ">=0.1.4"
+	},
+	"suggests": {
+		"emi": ">=1.0.0",
+		"jade": ">=1.1.24",
+		"modmenu": ">=11.0.4"
 	}
 }

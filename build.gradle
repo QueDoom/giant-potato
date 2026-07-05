@@ -22,6 +22,7 @@ repositories {
 		name = "TerraformersMC"
 		url = "https://maven.terraformersmc.com/"
 	}
+	// Fluidlib
 	maven {
 		name = "Modrinth"
 		url = "https://api.modrinth.com/maven" }
@@ -30,6 +31,10 @@ repositories {
 	maven {
 		name "createmod maven"
 		url "https://maven.createmod.net/"
+	}
+	maven {
+		name = 'ParchmentMC'
+		url = 'https://maven.parchmentmc.org'
 	}
 	mavenCentral()
 }
@@ -43,7 +48,10 @@ fabricApi {
 dependencies {
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings loom.officialMojangMappings()
+	mappings loom.layered() {
+		officialMojangMappings()
+		parchment("org.parchmentmc.data:parchment-${minecraft_version}:${parchment_version}@zip")
+	}
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
@@ -59,6 +67,10 @@ dependencies {
 
 	// Jade
 	modImplementation "maven.modrinth:jade:${project.jade_version}"
+
+	// Modmenu
+//	implementation("com.terraformersmc:modmenu:${project.modmenu_version}")
+//	modApi "com.terraformersmc:modmenu:${project.modmenu_version}"
 
 	// Flywheel
 //	modApi "dev.engine-room.flywheel:flywheel-fabric-api-${minecraft_version}:${flywheel_version}"
