@@ -30,13 +30,11 @@ public class ModItemGroups {
                         entries.accept(ModBlocks.SMOOTH_POTATOES);
 
                         entries.accept(ModItems.FOUNDRY);
+                        entries.accept(ModBlocks.CRUSHER);
                         entries.accept(ModItems.CHARRED_POTATO);
                         entries.accept(ModItems.BIOSTEEL_ALLOY);
                         entries.accept(ModItems.POTATO_ALLOY);
                         entries.accept(ModItems.POISONOUS_POTATO_ALLOY);
-
-                        entries.accept(ModBlocks.CRUSHER);
-                        entries.accept(ModItems.CRUSHER_WHEEL);
 
                         entries.accept(ModBlocks.SEWER_DRAIN);
                         entries.accept(ModBlocks.SEWER);

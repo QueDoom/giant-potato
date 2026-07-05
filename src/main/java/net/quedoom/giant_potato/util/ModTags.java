@@ -47,6 +47,8 @@ public class ModTags {
 
         public static final TagKey<Item> WRENCHES = createTag("wrenches");
 
+        public static final TagKey<Item> CRUSHER_RENDER_BLOCK_AS_ITEM = createTag("crusher_render_block_as_item");
+
 
         private static TagKey<Item> createTag(String name) {
             return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(GiantPotato.MOD_ID, name));

@@ -28,6 +28,8 @@ public class ModLootTableGenerator extends FabricBlockLootTableProvider {
     public void generate() {
         dropSelf(ModBlocks.MASH_BOWL);
         dropSelf(ModBlocks.SEWER_DRAIN);
+        dropSelf(ModBlocks.SEWER);
+        dropSelf(ModBlocks.CRUSHER);
 
     }
 

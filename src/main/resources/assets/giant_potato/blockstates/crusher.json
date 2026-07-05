@@ -1,19 +1,136 @@
 {
   "variants": {
-    "facing=east": {
-      "model": "giant_potato:block/crusher",
-      "y": 90
+    "crusher_first=0,crusher_second=0": {
+      "model": "giant_potato:block/crusher/crusher"
     },
-    "facing=north": {
-      "model": "giant_potato:block/crusher"
+    "crusher_first=0,crusher_second=1": {
+      "model": "giant_potato:block/crusher/0/crushing_01"
     },
-    "facing=south": {
-      "model": "giant_potato:block/crusher",
-      "y": 180
+    "crusher_first=0,crusher_second=2": {
+      "model": "giant_potato:block/crusher/0/crushing_02"
     },
-    "facing=west": {
-      "model": "giant_potato:block/crusher",
-      "y": 270
+    "crusher_first=0,crusher_second=3": {
+      "model": "giant_potato:block/crusher/0/crushing_03"
+    },
+    "crusher_first=1,crusher_second=0": {
+      "model": "giant_potato:block/crusher/1/crushing_10"
+    },
+    "crusher_first=1,crusher_second=1": {
+      "model": "giant_potato:block/crusher/1/crushing_11"
+    },
+    "crusher_first=1,crusher_second=2": {
+      "model": "giant_potato:block/crusher/1/crushing_12"
+    },
+    "crusher_first=1,crusher_second=3": {
+      "model": "giant_potato:block/crusher/1/crushing_13"
+    },
+    "crusher_first=2,crusher_second=0": {
+      "model": "giant_potato:block/crusher/2/crushing_20"
+    },
+    "crusher_first=2,crusher_second=1": {
+      "model": "giant_potato:block/crusher/2/crushing_21"
+    },
+    "crusher_first=2,crusher_second=2": {
+      "model": "giant_potato:block/crusher/2/crushing_22"
+    },
+    "crusher_first=2,crusher_second=3": {
+      "model": "giant_potato:block/crusher/2/crushing_23"
+    },
+    "crusher_first=3,crusher_second=0": {
+      "model": "giant_potato:block/crusher/3/crushing_30"
+    },
+    "crusher_first=3,crusher_second=1": {
+      "model": "giant_potato:block/crusher/3/crushing_31"
+    },
+    "crusher_first=3,crusher_second=2": {
+      "model": "giant_potato:block/crusher/3/crushing_32"
+    },
+    "crusher_first=3,crusher_second=3": {
+      "model": "giant_potato:block/crusher/3/crushing_33"
+    },
+    "crusher_first=4,crusher_second=0": {
+      "model": "giant_potato:block/crusher/4/crushing_40"
+    },
+    "crusher_first=4,crusher_second=1": {
+      "model": "giant_potato:block/crusher/4/crushing_41"
+    },
+    "crusher_first=4,crusher_second=2": {
+      "model": "giant_potato:block/crusher/4/crushing_42"
+    },
+    "crusher_first=4,crusher_second=3": {
+      "model": "giant_potato:block/crusher/4/crushing_43"
+    },
+    "crusher_first=5,crusher_second=0": {
+      "model": "giant_potato:block/crusher/5/crushing_50"
+    },
+    "crusher_first=5,crusher_second=1": {
+      "model": "giant_potato:block/crusher/5/crushing_51"
+    },
+    "crusher_first=5,crusher_second=2": {
+      "model": "giant_potato:block/crusher/5/crushing_52"
+    },
+    "crusher_first=5,crusher_second=3": {
+      "model": "giant_potato:block/crusher/5/crushing_53"
+    },
+    "crusher_first=6,crusher_second=0": {
+      "model": "giant_potato:block/crusher/6/crushing_60"
+    },
+    "crusher_first=6,crusher_second=1": {
+      "model": "giant_potato:block/crusher/6/crushing_61"
+    },
+    "crusher_first=6,crusher_second=2": {
+      "model": "giant_potato:block/crusher/6/crushing_62"
+    },
+    "crusher_first=6,crusher_second=3": {
+      "model": "giant_potato:block/crusher/6/crushing_63"
+    },
+    "crusher_first=7,crusher_second=0": {
+      "model": "giant_potato:block/crusher/7/crushing_70"
+    },
+    "crusher_first=7,crusher_second=1": {
+      "model": "giant_potato:block/crusher/7/crushing_71"
+    },
+    "crusher_first=7,crusher_second=2": {
+      "model": "giant_potato:block/crusher/7/crushing_72"
+    },
+    "crusher_first=7,crusher_second=3": {
+      "model": "giant_potato:block/crusher/7/crushing_73"
+    },
+    "crusher_first=8,crusher_second=0": {
+      "model": "giant_potato:block/crusher/8/crushing_80"
+    },
+    "crusher_first=8,crusher_second=1": {
+      "model": "giant_potato:block/crusher/8/crushing_81"
+    },
+    "crusher_first=8,crusher_second=2": {
+      "model": "giant_potato:block/crusher/8/crushing_82"
+    },
+    "crusher_first=8,crusher_second=3": {
+      "model": "giant_potato:block/crusher/8/crushing_83"
+    },
+    "crusher_first=9,crusher_second=0": {
+      "model": "giant_potato:block/crusher/9/crushing_90"
+    },
+    "crusher_first=9,crusher_second=1": {
+      "model": "giant_potato:block/crusher/9/crushing_91"
+    },
+    "crusher_first=9,crusher_second=2": {
+      "model": "giant_potato:block/crusher/9/crushing_92"
+    },
+    "crusher_first=9,crusher_second=3": {
+      "model": "giant_potato:block/crusher/9/crushing_93"
+    },
+    "crusher_first=10,crusher_second=0": {
+      "model": "giant_potato:block/crusher/10/crushing_100"
+    },
+    "crusher_first=10,crusher_second=1": {
+      "model": "giant_potato:block/crusher/10/crushing_101"
+    },
+    "crusher_first=10,crusher_second=2": {
+      "model": "giant_potato:block/crusher/10/crushing_102"
+    },
+    "crusher_first=10,crusher_second=3": {
+      "model": "giant_potato:block/crusher/10/crushing_103"
     }
   }
 }

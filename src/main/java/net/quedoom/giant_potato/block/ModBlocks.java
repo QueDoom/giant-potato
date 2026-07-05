@@ -6,6 +6,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -45,12 +46,13 @@ public class ModBlocks {
     public static final Block FOUNDRY = registerBlockWithoutItem("foundry",
             new FoundryBlock(BlockBehaviour.Properties.of().sound(SoundType.STONE)
                     .strength(3.0F).explosionResistance(3.0F).requiresCorrectToolForDrops()));
+
     public static final Block CRUSHER = registerBlock("crusher",
             new CrusherBlock(BlockBehaviour.Properties.of().sound(SoundType.STONE)
-                    .strength(3.0f).explosionResistance(3.0f).requiresCorrectToolForDrops()));
-    public static final Block CRUSHER_WHEEL = registerBlockWithoutItem("crusher_wheel",
-            new CrusherWheelBlock(BlockBehaviour.Properties.of().sound(SoundType.STONE)
-                    .strength(3.0f).explosionResistance(3.0f).requiresCorrectToolForDrops()));
+                    .strength(3.0F).explosionResistance(3.0F).requiresCorrectToolForDrops().noOcclusion()));
+
+    // TEST
+    public static final Block MASH_TEST = registerBlockWithoutItem("mash_test", new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.STONE)));
 
 
     private static Block registerBlock(String name, Block block) {

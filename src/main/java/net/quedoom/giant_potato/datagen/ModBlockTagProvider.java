@@ -42,10 +42,12 @@ public class ModBlockTagProvider extends FabricTagProvider.BlockTagProvider {
 
         getOrCreateTagBuilder(ModTags.Blocks.MASH_MACHINES)
                 .add(ModBlocks.FOUNDRY)
-                .add(ModBlocks.CRUSHER)
                 .add(ModBlocks.MASH_TANK)
                 .addTag(ModTags.Blocks.MASH_BOWLS)
         ;
+
+
+
 
         getOrCreateTagBuilder(BlockTags.MINEABLE_WITH_PICKAXE).add(ModBlocks.SMOOTH_POTATOES);
         getOrCreateTagBuilder(BlockTags.MINEABLE_WITH_PICKAXE).add(ModBlocks.FOUNDRY).add(ModBlocks.SEWER_DRAIN).add(ModBlocks.SEWER);

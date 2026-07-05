@@ -23,7 +23,6 @@ public class ModLangGenerator extends FabricLanguageProvider {
         translationBuilder.add(ModBlocks.MASH_PIPE, "Mash Pipe");
         translationBuilder.add(ModBlocks.SMOOTH_POTATOES, "Smooth Potatoes");
         translationBuilder.add(ModItems.FOUNDRY, "Foundry");
-        translationBuilder.add(ModItems.CRUSHER_WHEEL, "Crushing Wheel");
         translationBuilder.add(ModBlocks.CRUSHER, "Crusher");
         translationBuilder.add(ModBlocks.SEWER_DRAIN, "Sewer Drain");
         translationBuilder.add(ModBlocks.SEWER, "Sewer");

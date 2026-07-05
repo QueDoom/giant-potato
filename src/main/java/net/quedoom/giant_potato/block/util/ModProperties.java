@@ -1,6 +1,9 @@
 package net.quedoom.giant_potato.block.util;
 
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.block.state.properties.Property;
+//import net.minecraft.world.level.block.state.properties.
 
 public class ModProperties {
     public static final EnumProperty<PipeShape.PipeShapes> NORTH_PIPE_SHAPE = EnumProperty.create("north_pipe_shape", PipeShape.PipeShapes.class);
@@ -12,4 +15,7 @@ public class ModProperties {
 
     public static final EnumProperty<SewerDrainShape> DRAIN_SHAPE = EnumProperty.create("drain_shape", SewerDrainShape.class);
     public static final EnumProperty<SewerStates> SEWER_STATES = EnumProperty.create("sewer_states", SewerStates.class);
+
+    public static final IntegerProperty CRUSHER_FIRST = IntegerProperty.create("crusher_first",0 , 10);
+    public static final IntegerProperty CRUSHER_SECOND = IntegerProperty.create("crusher_second",0 , 3);
 }
