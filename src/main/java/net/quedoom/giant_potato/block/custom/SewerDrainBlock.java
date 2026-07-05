@@ -138,8 +138,11 @@ public class SewerDrainBlock extends Block {
         if (belowBottomDrain == null) return;
         BlockPos neg1 = belowBottomDrain.below(1);
         BlockPos neg2 = belowBottomDrain.below(2);
+        BlockPos neg3 = belowBottomDrain.below(3);
         if (world.getBlockState(neg1).is(BlockTags.AIR) && !world.getBlockState(neg2).is(BlockTags.AIR)) {
             world.setBlockAndUpdate(neg1, ModFluids.SEWER_WATER_BLOCK.defaultBlockState());
+        } else if (world.getBlockState(neg1).is(BlockTags.AIR) && world.getBlockState(neg2).is(BlockTags.AIR) && !world.getBlockState(neg3).is(BlockTags.AIR)) {
+            world.setBlockAndUpdate(neg2, ModFluids.SEWER_WATER_BLOCK.defaultBlockState());
         }
 
     }

@@ -1,0 +1,24 @@
+{
+	"format_version": "1.21.11",
+	"credit": "Made with Blockbench",
+	"parent": "block/block",
+	"textures": {
+		"6": "giant_potato:block/sewer_top_none",
+		"7": "giant_potato:block/sewer_sides",
+		"particle": "giant_potato:block/sewer_top_none"
+	},
+	"elements": [
+		{
+			"from": [0, 0, 0],
+			"to": [16, 16, 16],
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#7", "cullface": "north"},
+				"east": {"uv": [0, 0, 16, 16], "texture": "#7", "cullface": "east"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#7", "cullface": "south"},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#7", "cullface": "west"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#6", "cullface": "up"},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#7", "cullface": "down"}
+			}
+		}
+	]
+}
