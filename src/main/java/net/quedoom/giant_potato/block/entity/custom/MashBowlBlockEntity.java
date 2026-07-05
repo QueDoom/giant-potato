@@ -5,60 +5,55 @@ import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleVariantStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.animal.IronGolem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
+import net.quedoom.giant_potato.GiantPotato;
+import net.quedoom.giant_potato.block.ModBlocks;
+import net.quedoom.giant_potato.block.entity.ModBlockEntities;
 import net.quedoom.giant_potato.block.entity.util.ImplementedInventory;
+import net.quedoom.giant_potato.block.entity.util.ImplementedMashTank;
 import net.quedoom.giant_potato.fluid.ModFluids;
 import net.quedoom.giant_potato.util.ModTags;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.random.RandomGenerator;
 
-public class MashBowlBlockEntity extends BlockEntity implements ImplementedInventory {
+public class MashBowlBlockEntity extends BlockEntity implements ImplementedInventory, ImplementedMashTank {
     private final NonNullList<ItemStack> inventory = NonNullList.withSize(1, ItemStack.EMPTY);
 
     private static final int MASH_PER_POTATO = 4;
     private static final int MASH_PER_POISONOUS_POTATO = 2;
 
 
-    public MashBowlBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
-        super(type, pos, state);
+    public MashBowlBlockEntity(BlockPos pos, BlockState state) {
+        super(ModBlockEntities.MASH_BOWL_BE, pos, state);
     }
 
-    public final SingleVariantStorage<FluidVariant> fluidStorage = new SingleVariantStorage<FluidVariant>() {
-        @Override
-        protected FluidVariant getBlankVariant() {
-            return FluidVariant.blank();
-        }
-
-        @Override
-        protected long getCapacity(FluidVariant variant) {
-            return (FluidConstants.BUCKET / 81); // 1 Bucket = 81000 Droplets = 1000mB || * 64 ==> 64,000mB = 64 Buckets
-        }
-
-        @Override
-        protected void onFinalCommit() {
-            setChanged();
-            getLevel().sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-        }
-    };
+    public final SingleVariantStorage<FluidVariant> fluidStorage = ImplementedMashTank.of(1, this);
 
     @Override
     public NonNullList<ItemStack> getItems() {
         return this.inventory;
     }
 
-    public void jumpedOn(Level world, BlockState state, BlockPos pos, Entity entity, float fallDistance) {
+    public void jumpedOn(Level world, BlockState state, BlockPos pos, Entity entity) {
+        if (!(entity.isAlive() || entity instanceof IronGolem)) return;
         if (!world.isClientSide()) {
             System.out.println("I got jumpied on, ouch!");
             if (this.inventory.getFirst().is(ModTags.Items.MASH_BOWL_POTATO) || this.inventory.getFirst().is(ModTags.Items.MASH_BOWL_POISONOUS_POTATO)) {
@@ -103,7 +98,7 @@ public class MashBowlBlockEntity extends BlockEntity implements ImplementedInven
             yVel = RandomGenerator.getDefault().nextDouble() * 0.4 - 0.1;
             zVel = RandomGenerator.getDefault().nextDouble() * 0.4 - 0.1;
 
-            world.addParticle(new BlockParticleOption(ParticleTypes.BLOCK, ModFluids.MASH_BLOCK.defaultBlockState()), xPos + offset, yPos + offset, zPos + offset, xVel, yVel, zVel);
+            world.addParticle(new BlockParticleOption(ParticleTypes.BLOCK, ModBlocks.MASH_TEST.defaultBlockState()), xPos + offset, yPos + offset, zPos + offset, xVel, yVel, zVel);
         }
         if (big) {
             for (int i = 4; i > 0; i--) {
@@ -112,11 +107,44 @@ public class MashBowlBlockEntity extends BlockEntity implements ImplementedInven
                 yVel = RandomGenerator.getDefault().nextDouble() * 0.4;
                 zVel = RandomGenerator.getDefault().nextDouble() * 0.4;
 
-                world.addParticle(new BlockParticleOption(ParticleTypes.BLOCK, ModFluids.MASH_BLOCK.defaultBlockState()), xPos + offset, yPos + offset, zPos + offset, xVel, yVel, zVel);
+                world.addParticle(new BlockParticleOption(ParticleTypes.BLOCK, ModBlocks.MASH_TEST.defaultBlockState()), xPos + offset, yPos + offset, zPos + offset, xVel, yVel, zVel);
             }
         }
 
 
+    }
+
+    public boolean canPlaceItemC(ItemStack stack) {
+        GiantPotato.LOGGER.info("MASH BOWL: can place start");
+        ItemStack itemStack = inventory.getFirst();
+        ItemStack stackNormalized = stack.copyWithCount(1);
+        ItemStack itemStackNormalized = itemStack.copyWithCount(1);
+        GiantPotato.LOGGER.info("MASH BOWL: is same? : {}", ItemStack.isSameItemSameComponents(stackNormalized, itemStackNormalized)  || itemStack.isEmpty());
+        return ItemStack.isSameItemSameComponents(stackNormalized, itemStackNormalized) || itemStack.isEmpty();
+    }
+
+    public int placeItem(ItemStack stack) {
+        ItemStack itemStack = inventory.getFirst();
+        int invAmount = itemStack.getCount();
+        int stackAmount = stack.getCount();
+        int maxCount = itemStack.getMaxStackSize();
+        int stackAndInv = stackAmount + invAmount;
+        int mathSlot = stackAndInv - maxCount;
+        GiantPotato.LOGGER.info("MASH BOWL: LOGIC START");
+
+        if (canPlaceItemC(stack)) {
+            if (mathSlot <= 0) {
+                inventory.set(0, stack.copyWithCount(stackAndInv));
+                GiantPotato.LOGGER.info("MASH BOWL: {}", stackAmount);
+                return stackAmount;
+            } else {
+                inventory.set(0, stack.copyWithCount(maxCount));
+                GiantPotato.LOGGER.info("MASH BOWL: 64");
+                return stackAmount - mathSlot;
+            }
+        }
+        GiantPotato.LOGGER.info("MASH BOWL: 0");
+        return 0;
     }
 
 
@@ -138,5 +166,28 @@ public class MashBowlBlockEntity extends BlockEntity implements ImplementedInven
                 transaction.commit();
             }
         }
+    }
+
+
+
+    @Override
+    public SingleVariantStorage<FluidVariant> getMashStorage() {
+        return fluidStorage;
+    }
+
+    @Override
+    protected void saveAdditional(CompoundTag compoundTag, HolderLookup.Provider provider) {
+        ContainerHelper.saveAllItems(compoundTag, inventory, provider);
+        SingleVariantStorage.writeNbt(fluidStorage, FluidVariant.CODEC, compoundTag, provider);
+
+        super.saveAdditional(compoundTag, provider);
+    }
+
+    @Override
+    protected void loadAdditional(CompoundTag compoundTag, HolderLookup.Provider provider) {
+        ContainerHelper.loadAllItems(compoundTag, inventory, provider);
+        SingleVariantStorage.readNbt(fluidStorage, FluidVariant.CODEC, FluidVariant::blank, compoundTag, provider);
+
+        super.loadAdditional(compoundTag, provider);
     }
 }
