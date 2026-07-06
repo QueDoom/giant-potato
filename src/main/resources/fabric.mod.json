@@ -9,9 +9,10 @@
 	],
 	"contact": {
 		"homepage": "https://quedoom.com/",
-		"sources": "https://github.com/QueDoom/giant-potato"
+		"sources": "https://github.com/QueDoom/giant-potato",
+		"license": "https://license.quedoom.com/"
 	},
-	"license": "MIT",
+	"license": "https://license.quedoom.com/",
 	"icon": "assets/giant_potato/icon.png",
 	"custom": {
 		"modmenu": {
