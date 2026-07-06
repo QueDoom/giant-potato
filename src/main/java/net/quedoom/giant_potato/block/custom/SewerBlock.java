@@ -1,16 +1,22 @@
 package net.quedoom.giant_potato.block.custom;
 
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.quedoom.giant_potato.GiantPotato;
 import net.quedoom.giant_potato.block.ModBlocks;
 import net.quedoom.giant_potato.block.util.ModProperties;
 import net.quedoom.giant_potato.block.util.PosDirection;
@@ -53,49 +59,85 @@ public class SewerBlock extends Block {
         return getBlockState(state, world, pos);
     }
 
-    private SewerStates getState(BlockState state, LevelAccessor world, BlockPos pos) {
+    private SewerStates getState(BlockState state, LevelAccessor level, BlockPos pos) {
         Direction facing = state.getValue(FACING);
 
-        PosDirection forward = new PosDirection(pos, facing);
-        PosDirection left = new PosDirection(pos, facing.getCounterClockWise());
-        PosDirection right = new PosDirection(pos, facing.getClockWise());
-        PosDirection back = new PosDirection(pos, facing.getOpposite());
-
-        BlockState backState = back.getState((Level) world);
+        BlockState forwardState = level.getBlockState(pos.relative(facing));
+        BlockState leftState = level.getBlockState(pos.relative(facing.getCounterClockWise()));
+        BlockState rightState = level.getBlockState(pos.relative(facing.getClockWise()));
+        BlockState backState = level.getBlockState(pos.relative(facing.getOpposite()));
 
 
-        if (!hasSewerShape(state, facing, (Level) world, pos)) return SewerStates.NO_SHAPE;
+        boolean backConnected = checkBackwardsForSewer(backState, facing);
+        boolean forwardConnected = forwardState.is(ModBlocks.SEWER) && forwardState.getValue(FACING) == facing;
+        boolean leftConnected = leftState.is(ModBlocks.SEWER) && leftState.getValue(FACING) == facing.getCounterClockWise();
+        boolean rightConnected = rightState.is(ModBlocks.SEWER) && rightState.getValue(FACING) == facing.getClockWise();
 
-        SewerStates sewerState = SewerStates.DO_NOT_CONNECT;
-        if (backState.is(ModBlocks.SEWER) && backState.getValue(FACING) == facing) {
-            if (isConnected((Level) world, forward)) {
+
+        if (!hasSewerShape(state, facing, (Level) level, pos)) return SewerStates.NO_SHAPE;
+        SewerStates sewerState;
+
+
+        if (backConnected) {
+            GiantPotato.LOGGER.info("back");
+            if (forwardConnected) {
                 sewerState = SewerStates.CONNECT_FORWARD;
-            } else if (isConnected((Level) world, left)) {
-                sewerState = SewerStates.CONNECT_LEFT;
-            } else if (isConnected((Level) world, right)) {
+            } else if (rightConnected) {
                 sewerState = SewerStates.CONNECT_RIGHT;
+            } else if (leftConnected) {
+                sewerState = SewerStates.CONNECT_LEFT;
             } else {
                 sewerState = SewerStates.BACKWARDS_ONLY;
             }
         } else {
-            if (isConnected((Level) world, forward)) {
+            GiantPotato.LOGGER.info("not back");
+            if (forwardConnected) {
                 sewerState = SewerStates.FORWARD_ONLY;
-            } else if (isConnected((Level) world, left)) {
-                sewerState = SewerStates.LEFT_ONLY;
-            } else if (isConnected((Level) world, right)) {
+            } else if (rightConnected) {
                 sewerState = SewerStates.RIGHT_ONLY;
+            } else if (leftConnected) {
+                sewerState = SewerStates.LEFT_ONLY;
+            } else {
+                sewerState = SewerStates.DO_NOT_CONNECT;
             }
         }
+
         return sewerState;
     }
 
-    public boolean hasSewerShape(BlockState state, Direction facing, Level world, BlockPos pos) {
+    private boolean checkBackwardsForSewer(BlockState state, Direction facing) {
+        if (!state.is(ModBlocks.SEWER)) return false;
+        SewerStates sewerState = state.getValue(SEWER_STATE);
+        Direction backFacing = state.getValue(FACING);
+        return switch (sewerState) {
+            case SewerStates.CONNECT_FORWARD, SewerStates.FORWARD_ONLY -> backFacing == facing;
+            case SewerStates.CONNECT_RIGHT, SewerStates.RIGHT_ONLY -> backFacing.getClockWise() == facing;
+            case SewerStates.CONNECT_LEFT, SewerStates.LEFT_ONLY -> backFacing.getCounterClockWise() == facing;
+            default -> false;
+        };
+    }
+
+    public boolean hasSewerShape(BlockState state, Direction facing, Level level, BlockPos pos) {
         return true;
     }
 
-    private boolean isConnected(Level world, PosDirection posDir) {
-        BlockState state = posDir.getState(world);
-        return state.is(ModBlocks.SEWER) && state.getValue(FACING) == posDir.getDirection();
+    @Override
+    public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
+
+
+
+
+    }
+
+    private void displayParticleStair(Level level, BlockPos pos, Direction direction) {
+
+    }
+
+    private void displayParticleCube(Level level, BlockPos pos) {
+        VoxelShape shape = Shapes.block();
+        shape.forAllEdges((x1, y1, z1, x2, y2, z2) -> {
+
+        });
     }
 }
 
