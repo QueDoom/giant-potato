@@ -11,7 +11,7 @@
 		"homepage": "https://quedoom.com/",
 		"sources": "https://github.com/QueDoom/giant-potato"
 	},
-	"license": "MIT",
+	"license": "MIT License",
 	"icon": "assets/giant_potato/icon.png",
 	"custom": {
 		"modmenu": {
