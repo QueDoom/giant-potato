@@ -5,30 +5,14 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class PosDirection {
-    private final BlockPos POS;
-    private final Direction DIRECTION;
-
-
-    public PosDirection(BlockPos posOrigin, Direction direction) {
-        this.POS = posOrigin;
-        this.DIRECTION = direction;
-    }
-
-    public BlockPos getOriginPosition() {
-        return POS;
-    }
+public record PosDirection(BlockPos originPos, Direction direction) {
 
     public BlockState getOrigin(Level world) {
-        return world.getBlockState(POS);
-    }
-
-    public Direction getDirection() {
-        return DIRECTION;
+        return world.getBlockState(originPos);
     }
 
     public BlockState getState(Level world) {
-        return world.getBlockState(POS.relative(DIRECTION));
+        return world.getBlockState(originPos.relative(direction));
     }
 
 }
